@@ -7,6 +7,8 @@ import org.example.commands.ApplicationCommand
 import org.example.commands.PingCommand
 import org.example.commands.SummarizeCommand
 import org.example.services.LoggingService
+import org.example.services.ai.AIProvider
+import org.example.services.ai.GeminiProvider
 import org.koin.dsl.module
 
 val appModule = module(createdAtStart = true) {
@@ -21,6 +23,12 @@ val appModule = module(createdAtStart = true) {
         listOf(
             PingCommand(),
             SummarizeCommand()
+        )
+    }
+    single<AIProvider> {
+        val config = get<BotConfig>()
+        GeminiProvider(
+            apiKey = config.geminiApiKey ?: error("GEMINI_API_KEY not set")
         )
     }
 }

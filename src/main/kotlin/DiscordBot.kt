@@ -23,11 +23,8 @@ class DiscordBot : KoinComponent {
 
 
     suspend fun start() {
-        // Register slash commands with Discord
         registerSlashCommands()
-        // Listen for slash command interactions
         registerCommandHandlers()
-
         loggingService.logInfo("Bot is starting...")
         kord.login {
             @OptIn(PrivilegedIntent::class)
@@ -41,7 +38,7 @@ class DiscordBot : KoinComponent {
             kord.createGuildApplicationCommands(guildId = config.devGuildId!!) {
                 applicationCommands.forEach { it.register(this) }
             }.collect {
-                loggingService.logInfo("Registered ${applicationCommands.size} slash commands to dev guild ${config.devGuildId} (instant)")
+                loggingService.logInfo("Registered ${it.name} slash commands to dev guild ${config.devGuildId} (instant)")
             }
         } else {
             // Register commands globally (takes up to 1 hour to propagate)

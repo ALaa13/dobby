@@ -3,7 +3,6 @@ package org.example.commands
 import dev.kord.core.behavior.edit
 import dev.kord.core.behavior.interaction.respondPublic
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
-import org.example.services.LoggingService
 import org.koin.core.component.KoinComponent
 
 class PingCommand: ChatInputCommand(), KoinComponent {
