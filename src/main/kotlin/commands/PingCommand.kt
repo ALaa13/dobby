@@ -4,15 +4,14 @@ import dev.kord.core.behavior.edit
 import dev.kord.core.behavior.interaction.respondPublic
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
 import org.example.services.LoggingService
+import org.koin.core.component.KoinComponent
 
-class PingCommand(
-    private val loggingService: LoggingService
-) : ChatInputCommand {
+class PingCommand: ChatInputCommand(), KoinComponent {
 
     override val name = "ping"
     override val description = "Check bot latency"
 
-    override suspend fun execute(event: GuildChatInputCommandInteractionCreateEvent) {
+    override suspend fun run(event: GuildChatInputCommandInteractionCreateEvent) {
         val timeBefore = System.currentTimeMillis()
 
         // Respond to the interaction
@@ -27,12 +26,5 @@ class PingCommand(
         event.interaction.getOriginalInteractionResponse().edit {
             content = "🏓 Pong! Latency: ${ping}ms"
         }
-
-        // Log the command usage
-        loggingService.logCommand(
-            userId = event.interaction.user.id.toString(),
-            command = name,
-            guildId = event.interaction.data.guildId.value?.toString()
-        )
     }
 }

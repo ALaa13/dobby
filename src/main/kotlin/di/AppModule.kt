@@ -1,5 +1,7 @@
 package org.example.di
 
+import dev.kord.core.Kord
+import kotlinx.coroutines.runBlocking
 import org.example.BotConfig
 import org.example.commands.ApplicationCommand
 import org.example.commands.PingCommand
@@ -7,18 +9,18 @@ import org.example.commands.SummarizeCommand
 import org.example.services.LoggingService
 import org.koin.dsl.module
 
-val appModule = module {
-    // Config
+val appModule = module(createdAtStart = true) {
     single { BotConfig.load() }
-
-    // Services
+    single {
+        runBlocking {
+            Kord(get<BotConfig>().token)
+        }
+    }
     single { LoggingService() }
-
-    // Commands - register all your commands here
-    single<List<ApplicationCommand>> {
+    single<List<ApplicationCommand<*>>> {
         listOf(
-            PingCommand(get()),
-            SummarizeCommand(get())
+            PingCommand(),
+            SummarizeCommand()
         )
     }
 }
