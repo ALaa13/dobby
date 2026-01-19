@@ -9,6 +9,12 @@ data class ChatMessage(
     val timestamp: String
 )
 
+data class FetchMessagesConfig(
+    val sinceTimestamp: Int? = 60,
+    val maxMessagesToFetch: Int? = 500
+)
+
+
 /**
  * Formats messages for AI model consumption
  */
