@@ -28,21 +28,4 @@ object MessageFormatter {
             )
         }
     }
-
-    /**
-     * Converts messages to a structured format (useful for JSON serialization)
-     * @param messages List of messages to format
-     * @return List of formatted message objects
-     */
-    @OptIn(ExperimentalTime::class)
-    fun formatMessagesStructured(messages: List<Message>): List<Map<String, String>> {
-        return messages.map { message ->
-            mapOf(
-                "author" to (message.author?.username ?: "Unknown"),
-                "content" to message.content,
-                "timestamp" to message.timestamp.toString(),
-                "id" to message.id.toString()
-            )
-        }
-    }
 }

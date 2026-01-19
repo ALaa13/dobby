@@ -2,6 +2,7 @@ package org.example.di
 
 import dev.kord.core.Kord
 import kotlinx.coroutines.runBlocking
+import org.example.AIProviderType
 import org.example.BotConfig
 import org.example.commands.ApplicationCommand
 import org.example.commands.PingCommand
@@ -27,8 +28,9 @@ val appModule = module(createdAtStart = true) {
     }
     single<AIProvider> {
         val config = get<BotConfig>()
-        GeminiProvider(
-            apiKey = config.geminiApiKey ?: error("GEMINI_API_KEY not set")
-        )
+        when (config.aiProvider) {
+            AIProviderType.GEMINI -> GeminiProvider(config.geminiApiKey ?: error("GEMINI_API_KEY not set"))
+            else -> error("Unsupported AI provider: ${config.aiProvider}")
+        }
     }
 }

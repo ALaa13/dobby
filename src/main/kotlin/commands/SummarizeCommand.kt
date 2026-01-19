@@ -1,7 +1,10 @@
 package org.example.commands
 
+import dev.kord.common.Color
+import dev.kord.core.behavior.interaction.response.edit
 import dev.kord.core.behavior.interaction.response.respond
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
+import dev.kord.rest.builder.message.embed
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
@@ -17,6 +20,8 @@ class SummarizeCommand : ChatInputCommand(), KoinComponent {
 
     override suspend fun run(event: GuildChatInputCommandInteractionCreateEvent) {
         val deferredMessage = event.interaction.deferPublicResponse()
+        val user = event.interaction.user
+        val response = deferredMessage.respond { content = "Generating summary..." }
 
         val channel = event.interaction.channel
         val messages = channel.getMessagesBefore(event.interaction.id, 100)
@@ -28,9 +33,13 @@ class SummarizeCommand : ChatInputCommand(), KoinComponent {
         // Format messages for AI model
         val formattedMessages = MessageFormatter.formatMessagesForAI(messages)
         val summarizedMessageText = aiProvider.generateSummary(formattedMessages)
-
-        deferredMessage.respond {
-            content = "Summary: $summarizedMessageText"
+        response.edit {
+            content = "${user.mention} Summary Generated!"
+            embed {
+                title = "Channel Summary"
+                description = summarizedMessageText
+                color = Color(0x5865F2)
+            }
         }
     }
 }
