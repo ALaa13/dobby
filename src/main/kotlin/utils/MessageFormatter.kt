@@ -1,13 +1,10 @@
 package org.example.utils
 
 import dev.kord.core.entity.Message
+import org.example.dto.ChatMessage
 import kotlin.time.ExperimentalTime
 
-data class ChatMessage(
-    val author: String,
-    val content: String,
-    val timestamp: String
-)
+
 
 data class FetchMessagesConfig(
     val sinceTimestamp: Int? = 60,
