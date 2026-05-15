@@ -8,9 +8,9 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.json
-import org.example.dto.ChatMessage
+import org.example.dto.RoastDeliveryRequest
 
-private const val BACKEND_URL = "http://localhost:8080/dobby"
+private const val BACKEND_URL = "http://localhost:8080/api/v1/roasts"
 
 
 class DobbyCoreBackend {
@@ -25,10 +25,10 @@ class DobbyCoreBackend {
         }
     }
 
-    suspend fun sendDiscordMessages(messages: List<ChatMessage>): String {
+    suspend fun sendDiscordMessages(requestBody: RoastDeliveryRequest): String {
         val response: HttpResponse = client.post(BACKEND_URL) {
             contentType(ContentType.Application.Json)
-            setBody(messages)
+            setBody(requestBody)
         }
         val responseBody = response.bodyAsText()
         return responseBody
