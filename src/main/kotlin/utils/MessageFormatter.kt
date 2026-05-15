@@ -25,7 +25,7 @@ object MessageFormatter {
     fun formatMessagesForAI(messages: List<Message>): List<ChatMessage> {
         return messages.map { message ->
             ChatMessage(
-                author = message.author?.username ?: "Unknown",
+                author = message.author?.id.toString(),
                 content = message.content,
                 timestamp = message.timestamp.toString()
             )

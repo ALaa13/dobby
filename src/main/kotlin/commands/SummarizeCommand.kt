@@ -1,9 +1,7 @@
 package org.example.commands
 
-import dev.kord.common.Color
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.behavior.channel.GuildMessageChannelBehavior
-import dev.kord.core.behavior.interaction.response.edit
 import dev.kord.core.behavior.interaction.response.respond
 import dev.kord.core.entity.Message
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
@@ -11,10 +9,10 @@ import dev.kord.rest.builder.interaction.MultiApplicationCommandBuilder
 import dev.kord.rest.builder.interaction.input
 import dev.kord.rest.builder.interaction.integer
 import dev.kord.rest.builder.interaction.string
-import dev.kord.rest.builder.message.embed
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.flow.toList
+import org.example.dto.RoastDeliveryRequest
 import org.example.services.DobbyCoreBackend
 import org.example.utils.FetchMessagesConfig
 import org.example.utils.MessageFormatter
@@ -56,8 +54,7 @@ class SummarizeCommand : ChatInputCommand(), KoinComponent {
 
     override suspend fun run(event: GuildChatInputCommandInteractionCreateEvent) {
         val deferredMessage = event.interaction.deferPublicResponse()
-        val user = event.interaction.user
-        val response = deferredMessage.respond { content = "Generating summary..." }
+        val messageResponse = deferredMessage.respond { content = "Aight fam, lemme cook" }
 
         // Get command options
         val messagesCount = event.interaction.command.integers["count"]?.toInt()
@@ -68,17 +65,14 @@ class SummarizeCommand : ChatInputCommand(), KoinComponent {
             channel, event.interaction.id,
             FetchMessagesConfig(maxMessagesToFetch = messagesCount, sinceTimestamp = sinceMessagesTime)
         )
-        // Format messages for Backend end point
         val formattedMessages = MessageFormatter.formatMessagesForAI(messages)
-        val summarizedMessageText = dobbyCoreBackend.sendDiscordMessages(formattedMessages)
-        response.edit {
-            content = "${user.mention} Summary Generated!"
-            embed {
-                title = "Channel Summary"
-                description = summarizedMessageText
-                color = Color(0x5865F2)
-            }
-        }
+        dobbyCoreBackend.sendDiscordMessages(
+            RoastDeliveryRequest(
+                channelId = channel.id.toString(),
+                messageId = messageResponse.message.id.toString(),
+                messages = formattedMessages
+            )
+        )
     }
 
     @OptIn(ExperimentalTime::class)
