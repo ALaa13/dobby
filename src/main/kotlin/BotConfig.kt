@@ -7,8 +7,7 @@ import io.github.cdimascio.dotenv.dotenv
 data class BotConfig(
     val token: String,
     val devGuildId: Snowflake? = null,
-    val aiProvider: AIProviderType = AIProviderType.GEMINI,
-    val geminiApiKey: String? = null,
+    val securityToken: String,
 ) {
     companion object {
         fun load(): BotConfig {
@@ -17,17 +16,9 @@ data class BotConfig(
                 token = env["DISCORD_TOKEN"]
                     ?: error("DISCORD_TOKEN not set"),
                 devGuildId = env["DEV_GUILD_ID"]?.let { Snowflake(it) },
-                aiProvider = env["AI_PROVIDER"]?.let {
-                    AIProviderType.valueOf(it.uppercase())
-                } ?: AIProviderType.GEMINI,
-                geminiApiKey = env["GEMINI_API_KEY"],
+                securityToken = env["INTERNAL_SECURITY_TOKEN"]
+                    ?: error("INTERNAL_SECURITY_TOKEN not set")
             )
         }
     }
-}
-
-enum class AIProviderType {
-    GEMINI,
-    OPENAI,
-    CLAUDE
 }

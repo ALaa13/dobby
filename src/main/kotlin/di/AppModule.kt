@@ -2,35 +2,33 @@ package org.example.di
 
 import dev.kord.core.Kord
 import kotlinx.coroutines.runBlocking
-import org.example.AIProviderType
 import org.example.BotConfig
+import org.example.DiscordBot
+import org.example.EmbeddedServerManager
 import org.example.commands.ApplicationCommand
 import org.example.commands.PingCommand
 import org.example.commands.SummarizeCommand
+import org.example.services.DobbyCoreBackend
 import org.example.services.LoggingService
-import org.example.services.ai.AIProvider
-import org.example.services.ai.GeminiProvider
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
-val appModule = module(createdAtStart = true) {
-    single { BotConfig.load() }
+fun appModule(config: BotConfig, kord: Kord) = module {
+    single { config }
+    single { kord }
+    single { DiscordBot() }
     single {
-        runBlocking {
-            Kord(get<BotConfig>().token)
-        }
+        EmbeddedServerManager(
+            get(),
+            get<BotConfig>().securityToken
+        )
     }
     single { LoggingService() }
+    single { DobbyCoreBackend() }
     single<List<ApplicationCommand<*>>> {
         listOf(
             PingCommand(),
             SummarizeCommand()
         )
-    }
-    single<AIProvider> {
-        val config = get<BotConfig>()
-        when (config.aiProvider) {
-            AIProviderType.GEMINI -> GeminiProvider(config.geminiApiKey ?: error("GEMINI_API_KEY not set"))
-            else -> error("Unsupported AI provider: ${config.aiProvider}")
-        }
     }
 }
