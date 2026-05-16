@@ -38,7 +38,7 @@ object DiscordStrings {
 
     object HttpEndPoints {
         object PostRoast {
-            const val PATH = "/roast"
+            const val PATH = "/roasts"
         }
 
         object InternalBotDelivery {

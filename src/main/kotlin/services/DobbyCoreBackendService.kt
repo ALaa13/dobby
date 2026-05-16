@@ -27,14 +27,16 @@ class DobbyCoreBackend(
     }
 
     suspend fun sendDiscordMessages(requestBody: RoastDeliveryRequest): String {
-        val response: HttpResponse = client.post(
-            config.dobbyBackendUrl
-                    + DiscordStrings.HttpEndPoints.PostRoast.PATH
-        ) {
-            contentType(ContentType.Application.Json)
-            setBody(requestBody)
+        try {
+            val urlString = config.dobbyBackendUrl + DiscordStrings.HttpEndPoints.PostRoast.PATH
+            val response: HttpResponse = client.post(urlString) {
+                contentType(ContentType.Application.Json)
+                setBody(requestBody)
+            }
+            val responseBody = response.bodyAsText()
+            return responseBody
+        } catch (e: Exception) {
+            throw Exception("Failed to send Discord messages: ${e.message}")
         }
-        val responseBody = response.bodyAsText()
-        return responseBody
     }
 }
