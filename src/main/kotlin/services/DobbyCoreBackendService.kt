@@ -1,19 +1,20 @@
 package org.example.services
 
 import io.ktor.client.*
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.json
+import io.ktor.serialization.kotlinx.json.*
+import org.example.BotConfig
 import org.example.dto.RoastDeliveryRequest
+import org.example.utils.DiscordStrings
 
-private const val BACKEND_URL = "http://localhost:8080/api/v1/roasts"
-
-
-class DobbyCoreBackend {
+class DobbyCoreBackend(
+    private val config: BotConfig,
+) {
     private val client = HttpClient(CIO) {
         install(HttpTimeout) {
             requestTimeoutMillis = 120_000L
@@ -26,7 +27,10 @@ class DobbyCoreBackend {
     }
 
     suspend fun sendDiscordMessages(requestBody: RoastDeliveryRequest): String {
-        val response: HttpResponse = client.post(BACKEND_URL) {
+        val response: HttpResponse = client.post(
+            config.dobbyBackendUrl
+                    + DiscordStrings.HttpEndPoints.PostRoast.PATH
+        ) {
             contentType(ContentType.Application.Json)
             setBody(requestBody)
         }

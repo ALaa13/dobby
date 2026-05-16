@@ -8,12 +8,12 @@ import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEve
 import dev.kord.rest.builder.interaction.MultiApplicationCommandBuilder
 import dev.kord.rest.builder.interaction.input
 import dev.kord.rest.builder.interaction.integer
-import dev.kord.rest.builder.interaction.string
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.flow.toList
 import org.example.dto.RoastDeliveryRequest
 import org.example.services.DobbyCoreBackend
+import org.example.utils.DiscordStrings
 import org.example.utils.FetchMessagesConfig
 import org.example.utils.MessageFormatter
 import org.koin.core.component.KoinComponent
@@ -22,43 +22,40 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.ExperimentalTime
 
-class SummarizeCommand : ChatInputCommand(), KoinComponent {
-    override val name = "summarize"
-    override val description = "Summarize the messages in a channel"
+class RoastCommand : ChatInputCommand(), KoinComponent {
+    override val name = DiscordStrings.Commands.Roast.NAME
+    override val description = DiscordStrings.Commands.Roast.DESCRIPTION
     private val dobbyCoreBackend: DobbyCoreBackend by inject()
 
 
     override suspend fun register(builder: MultiApplicationCommandBuilder) {
         builder.input(name, description) {
-            integer("count", "How many messages to summarize") {
+            integer(DiscordStrings.Commands.Roast.Count.NAME, DiscordStrings.Commands.Roast.Count.DESCRIPTION) {
                 required = false
-                choice("Last 10 messages", 10)
-                choice("Last 50 messages", 50)
-                choice("Last 250 messages", 250)
-                choice("Last 500 messages", 500)
+                choice(DiscordStrings.Commands.Roast.Count.CHOICE_10, 10)
+                choice(DiscordStrings.Commands.Roast.Count.CHOICE_50, 50)
+                choice(DiscordStrings.Commands.Roast.Count.CHOICE_250, 250)
+                choice(DiscordStrings.Commands.Roast.Count.CHOICE_500, 500)
             }
-            integer("since", "How far back to read messages") {
+            integer(DiscordStrings.Commands.Roast.Since.NAME, DiscordStrings.Commands.Roast.Since.DESCRIPTION) {
                 required = false
-                choice("Last 30 minutes", 30)
-                choice("Last 1 hour", 60)
-                choice("Last 3 hours", 180)
-                choice("Last 6 hours", 360)
-                choice("Last 12 hours", 720)
-                choice("Last 24 hours", 1440)
-            }
-            string("prompt", "Custom prompt for the AI") {
-                required = false
+                choice(DiscordStrings.Commands.Roast.Since.CHOICE_30, 30)
+                choice(DiscordStrings.Commands.Roast.Since.CHOICE_60, 60)
+                choice(DiscordStrings.Commands.Roast.Since.CHOICE_180, 180)
+                choice(DiscordStrings.Commands.Roast.Since.CHOICE_360, 360)
+                choice(DiscordStrings.Commands.Roast.Since.CHOICE_720, 720)
+                choice(DiscordStrings.Commands.Roast.Since.CHOICE_1440, 1440)
             }
         }
     }
 
     override suspend fun run(event: GuildChatInputCommandInteractionCreateEvent) {
         val deferredMessage = event.interaction.deferPublicResponse()
-        val messageResponse = deferredMessage.respond { content = "Aight fam, lemme cook" }
+        val messageResponse = deferredMessage.respond { content = DiscordStrings.Commands.Roast.DEFERRED_MESSAGE }
 
         // Get command options
-        val messagesCount = event.interaction.command.integers["count"]?.toInt()
-        val sinceMessagesTime = event.interaction.command.integers["since"]?.toInt()
+        val messagesCount = event.interaction.command.integers[DiscordStrings.Commands.Roast.Count.NAME]?.toInt()
+        val sinceMessagesTime = event.interaction.command.integers[DiscordStrings.Commands.Roast.Since.NAME]?.toInt()
 
         val channel = event.interaction.channel
         val messages = fetchMessages(

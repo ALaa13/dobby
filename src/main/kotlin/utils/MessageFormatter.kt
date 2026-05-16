@@ -5,7 +5,6 @@ import org.example.dto.ChatMessage
 import kotlin.time.ExperimentalTime
 
 
-
 data class FetchMessagesConfig(
     val sinceTimestamp: Int? = 60,
     val maxMessagesToFetch: Int? = 500

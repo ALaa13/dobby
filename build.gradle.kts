@@ -19,7 +19,7 @@ dependencies {
     implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
     implementation("io.ktor:ktor-client-cio:3.1.3")
-    implementation("io.ktor:ktor-server-core:3.1.0")
+    implementation("io.ktor:ktor-server-core:3.5.0")
     implementation("io.ktor:ktor-server-netty:3.5.0")
     implementation("io.ktor:ktor-server-content-negotiation:3.1.3")
 }
@@ -30,10 +30,4 @@ kotlin {
 
 tasks.test {
     useJUnitPlatform()
-}
-
-tasks.withType<JavaExec> {
-    jvmArgs(
-        "--add-opens", "java.base/jdk.internal.misc=ALL-UNNAMED"
-    )
 }
