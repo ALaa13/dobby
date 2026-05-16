@@ -7,6 +7,7 @@ import org.example.EmbeddedServerManager
 import org.example.commands.ApplicationCommand
 import org.example.commands.PingCommand
 import org.example.commands.RoastCommand
+import org.example.commands.UserRoastCommand
 import org.example.services.DobbyCoreBackend
 import org.example.services.LoggingService
 import org.koin.dsl.module
@@ -27,7 +28,8 @@ fun appModule(config: BotConfig, kord: Kord) = module {
     single<List<ApplicationCommand<*>>> {
         listOf(
             PingCommand(),
-            RoastCommand()
+            RoastCommand(),
+            UserRoastCommand()
         )
     }
 }

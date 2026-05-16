@@ -26,7 +26,7 @@ fun Route.internalBotDeliveryRoute(kord: Kord, expectedToken: String) {
             kord.rest.channel.editMessage(channelSnowflake, messageSnowflake) {
                 content = ""
                 embed {
-                    title = DiscordStrings.Commands.Roast.REPLIED_MESSAGE_TITLE
+                    title = DiscordStrings.Commands.RoastChannel.REPLIED_MESSAGE_TITLE
                     description = request.content
                     color = dev.kord.common.Color(0x5865F2)
                 }

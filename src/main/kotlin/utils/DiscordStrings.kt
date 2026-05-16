@@ -8,7 +8,7 @@ object DiscordStrings {
             const val DEFERRED_MESSAGE = "Calculating ping..."
         }
 
-        object Roast {
+        object RoastChannel {
             const val NAME = "roast"
             const val DESCRIPTION = "Roast the living soul outta the Homies in this channel"
             const val DEFERRED_MESSAGE = "Aight fam, lemme cook"
@@ -33,6 +33,17 @@ object DiscordStrings {
                 const val CHOICE_720 = "Last 12 hours"
                 const val CHOICE_1440 = "Last 24 hours"
             }
+
+            object Target {
+                const val NAME = "target"
+                const val DESCRIPTION = "Roast a specific homie instead of the whole channel"
+                const val IS_BOT_REPLY = "Yo fam I ain't roasting one of my own. Pick a human"
+            }
+        }
+
+        object RoastUser {
+            const val NAME = "Roast this homie"
+            const val DEFERRED_MESSAGE = "Aight, Imma fry them"
         }
     }
 
