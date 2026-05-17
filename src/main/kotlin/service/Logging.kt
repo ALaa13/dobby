@@ -1,6 +1,6 @@
-package org.example.services
+package org.example.service
 
-class LoggingService {
+object Logging {
     fun logCommand(
         userId: String,
         command: String,

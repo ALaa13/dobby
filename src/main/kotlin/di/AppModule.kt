@@ -1,33 +1,36 @@
 package org.example.di
 
 import dev.kord.core.Kord
-import org.example.BotConfig
+import io.ktor.client.*
 import org.example.DiscordBot
-import org.example.EmbeddedServerManager
-import org.example.commands.ApplicationCommand
-import org.example.commands.PingCommand
-import org.example.commands.RoastCommand
-import org.example.services.DobbyCoreBackend
-import org.example.services.LoggingService
+import org.example.command.ApplicationCommand
+import org.example.command.PingCommand
+import org.example.command.RoastCommand
+import org.example.command.UserRoastCommand
+import org.example.config.BotConfig
+import org.example.config.EmbeddedServerManager
+import org.example.service.DobbyCoreBackend
+import org.example.service.RoastDeliveryService
 import org.koin.dsl.module
 
-fun appModule(config: BotConfig, kord: Kord) = module {
+fun appModule(config: BotConfig, kord: Kord, httpClient: HttpClient) = module {
     single { config }
     single { kord }
-    single { DiscordBot() }
+    single { DiscordBot(get(), get(), get()) }
+    single { httpClient }
     single {
         EmbeddedServerManager(
             get(),
             get(),
-            get<BotConfig>().securityToken
         )
     }
-    single { LoggingService() }
-    single { DobbyCoreBackend(get()) }
+    single { RoastDeliveryService(get()) }
+    single { DobbyCoreBackend(get(), get()) }
     single<List<ApplicationCommand<*>>> {
         listOf(
             PingCommand(),
-            RoastCommand()
+            RoastCommand(get()),
+            UserRoastCommand(get())
         )
     }
 }

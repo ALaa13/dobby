@@ -1,4 +1,4 @@
-package org.example.commands
+package org.example.command
 
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
 import dev.kord.core.event.interaction.GuildMessageCommandInteractionCreateEvent
@@ -8,33 +8,31 @@ import dev.kord.rest.builder.interaction.MultiApplicationCommandBuilder
 import dev.kord.rest.builder.interaction.input
 import dev.kord.rest.builder.interaction.message
 import dev.kord.rest.builder.interaction.user
-import org.example.services.LoggingService
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import org.example.service.Logging
 
 // Base interface for all command types
-abstract class ApplicationCommand<T : InteractionCreateEvent> : KoinComponent {
+abstract class ApplicationCommand<T : InteractionCreateEvent> {
     abstract val name: String
-    val loggingService: LoggingService by inject()
     abstract suspend fun register(builder: MultiApplicationCommandBuilder)
     abstract suspend fun run(event: T)
     suspend fun execute(event: T) {
         try {
             run(event)
-            loggingService.logCommand(
+            Logging.logCommand(
                 userId = event.interaction.user.id.toString(),
                 command = name,
                 guildId = event.interaction.data.guildId.value?.toString()
             )
         } catch (e: Exception) {
-            loggingService.logError("Error executing $name", e)
+            Logging.logError("Error executing $name", e)
             throw e
         }
     }
 }
 
 // Chat Input Commands (Slash commands like /ping)
-abstract class ChatInputCommand : ApplicationCommand<GuildChatInputCommandInteractionCreateEvent>() {
+abstract class ChatInputCommand() :
+    ApplicationCommand<GuildChatInputCommandInteractionCreateEvent>() {
     abstract val description: String
 
     override suspend fun register(builder: MultiApplicationCommandBuilder) {
@@ -47,7 +45,10 @@ abstract class ChatInputCommand : ApplicationCommand<GuildChatInputCommandIntera
 }
 
 // User Commands (Right-click on user)
-abstract class UserCommand : ApplicationCommand<GuildUserCommandInteractionCreateEvent>() {
+abstract class UserCommand :
+    ApplicationCommand<GuildUserCommandInteractionCreateEvent>(
+
+    ) {
     override suspend fun register(builder: MultiApplicationCommandBuilder) {
         builder.user(name)
     }
@@ -56,7 +57,10 @@ abstract class UserCommand : ApplicationCommand<GuildUserCommandInteractionCreat
 }
 
 // Message Commands (Right-click on a message)
-abstract class MessageCommand : ApplicationCommand<GuildMessageCommandInteractionCreateEvent>() {
+abstract class MessageCommand :
+    ApplicationCommand<GuildMessageCommandInteractionCreateEvent>(
+
+    ) {
     override suspend fun register(builder: MultiApplicationCommandBuilder) {
         builder.message(name)
     }

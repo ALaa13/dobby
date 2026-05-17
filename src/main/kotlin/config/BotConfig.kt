@@ -1,8 +1,7 @@
-package org.example
+package org.example.config
 
 import dev.kord.common.entity.Snowflake
 import io.github.cdimascio.dotenv.dotenv
-
 
 data class BotConfig(
     val token: String,
