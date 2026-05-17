@@ -5,6 +5,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class RoastDeliveryResponse(
     val channelId: String,
-    val messageId: String,
     val content: String
 )

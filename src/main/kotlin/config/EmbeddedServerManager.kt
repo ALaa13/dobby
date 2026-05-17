@@ -1,18 +1,17 @@
-package org.example
+package org.example.config
 
-import dev.kord.core.Kord
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.routing.*
-import org.example.services.internalBotDeliveryRoute
+import org.example.route.internalBotDeliveryRoute
+import org.example.service.RoastDeliveryService
 
 class EmbeddedServerManager(
     private val config: BotConfig,
-    private val kord: Kord,
-    private val expectedToken: String,
+    private val roastDeliveryService: RoastDeliveryService,
 ) {
     fun start() {
         embeddedServer(
@@ -24,7 +23,7 @@ class EmbeddedServerManager(
                 json()
             }
             routing {
-                internalBotDeliveryRoute(kord, expectedToken)
+                internalBotDeliveryRoute(config, roastDeliveryService)
             }
         }.start(wait = false)
     }

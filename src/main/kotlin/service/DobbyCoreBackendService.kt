@@ -1,4 +1,4 @@
-package org.example.services
+package org.example.service
 
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -8,9 +8,9 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import org.example.BotConfig
+import org.example.config.BotConfig
 import org.example.dto.RoastDeliveryRequest
-import org.example.utils.DiscordStrings
+import org.example.util.DiscordStrings
 
 class DobbyCoreBackend(
     private val config: BotConfig,
@@ -26,17 +26,17 @@ class DobbyCoreBackend(
         }
     }
 
-    suspend fun sendDiscordMessages(requestBody: RoastDeliveryRequest): String {
-        try {
+    suspend fun sendDiscordMessages(requestBody: RoastDeliveryRequest): Boolean {
+        return try {
             val urlString = config.dobbyBackendUrl + DiscordStrings.HttpEndPoints.PostRoast.PATH
             val response: HttpResponse = client.post(urlString) {
                 contentType(ContentType.Application.Json)
                 setBody(requestBody)
             }
-            val responseBody = response.bodyAsText()
-            return responseBody
+            response.status.isSuccess()
         } catch (e: Exception) {
-            throw Exception("Failed to send Discord messages: ${e.message}")
+            LoggingService.logError("Error sending roast delivery request to Dobby Core Backend: ${e.message}")
+            false
         }
     }
 }

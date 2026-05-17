@@ -1,4 +1,4 @@
-package org.example.commands
+package org.example.command
 
 import dev.kord.core.behavior.interaction.response.respond
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
@@ -6,20 +6,18 @@ import dev.kord.rest.builder.interaction.MultiApplicationCommandBuilder
 import dev.kord.rest.builder.interaction.input
 import dev.kord.rest.builder.interaction.integer
 import dev.kord.rest.builder.interaction.user
-import org.example.dto.RoastDeliveryRequest
-import org.example.services.DobbyCoreBackend
-import org.example.utils.DiscordStrings
-import org.example.utils.FetchMessagesConfig
-import org.example.utils.fetchMessages
-import org.example.utils.formatMessagesForAI
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
+import org.example.service.DobbyCoreBackend
+import org.example.util.DiscordStrings
+import org.example.util.FetchMessagesConfig
+import org.example.util.deliverRoast
+import org.example.util.fetchMessages
 
-class RoastCommand : ChatInputCommand(), KoinComponent {
+class RoastCommand(
+    private val dobbyCoreBackend: DobbyCoreBackend
+) : ChatInputCommand() {
+
     override val name = DiscordStrings.Commands.RoastChannel.NAME
     override val description = DiscordStrings.Commands.RoastChannel.DESCRIPTION
-    private val dobbyCoreBackend: DobbyCoreBackend by inject()
-
 
     override suspend fun register(builder: MultiApplicationCommandBuilder) {
         builder.input(name, description) {
@@ -55,15 +53,15 @@ class RoastCommand : ChatInputCommand(), KoinComponent {
     }
 
     override suspend fun run(event: GuildChatInputCommandInteractionCreateEvent) {
-        val deferredMessage = event.interaction.deferPublicResponse()
-        val messageResponse =
-            deferredMessage.respond { content = DiscordStrings.Commands.RoastChannel.DEFERRED_MESSAGE }
+        val interaction = event.interaction
+
+        val deferredMessage = interaction.deferEphemeralResponse()
 
         // Get command options
-        val messagesCount = event.interaction.command.integers[DiscordStrings.Commands.RoastChannel.Count.NAME]?.toInt()
+        val messagesCount = interaction.command.integers[DiscordStrings.Commands.RoastChannel.Count.NAME]?.toInt()
         val sinceMessagesTime =
-            event.interaction.command.integers[DiscordStrings.Commands.RoastChannel.Since.NAME]?.toInt()
-        val target = event.interaction.command.users[DiscordStrings.Commands.RoastChannel.Target.NAME]
+            interaction.command.integers[DiscordStrings.Commands.RoastChannel.Since.NAME]?.toInt()
+        val target = interaction.command.users[DiscordStrings.Commands.RoastChannel.Target.NAME]
 
         // The selected target is Bot and not a user
         if (target?.isBot == true) {
@@ -71,23 +69,21 @@ class RoastCommand : ChatInputCommand(), KoinComponent {
             return
         }
 
-        val channel = event.interaction.channel
+        val channel = interaction.channel
         val messages = fetchMessages(
             channel,
-            event.interaction.id,
+            interaction.id,
             FetchMessagesConfig(
                 messagesToFetch = messagesCount,
                 sinceMinutes = sinceMessagesTime,
                 authorId = target?.id
             ),
         )
-        val formattedMessages = formatMessagesForAI(messages)
-        dobbyCoreBackend.sendDiscordMessages(
-            RoastDeliveryRequest(
-                channelId = channel.id.toString(),
-                messageId = messageResponse.message.id.toString(),
-                messages = formattedMessages
-            )
+        deliverRoast(
+            messages = messages,
+            channel = channel,
+            deferredMessage = deferredMessage,
+            dobbyCoreBackend = dobbyCoreBackend
         )
     }
 }

@@ -1,4 +1,4 @@
-package org.example.utils
+package org.example.util
 
 object DiscordStrings {
     object Commands {
@@ -43,13 +43,13 @@ object DiscordStrings {
 
         object RoastUser {
             const val NAME = "Roast this homie"
-            const val DEFERRED_MESSAGE = "Aight, Imma fry them"
         }
     }
 
     object HttpEndPoints {
         object PostRoast {
             const val PATH = "/roasts"
+            const val FAILED_MESSAGE = "Ugh fam, my brain aka the server is down... Try again later"
         }
 
         object InternalBotDelivery {

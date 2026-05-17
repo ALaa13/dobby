@@ -1,4 +1,4 @@
-package org.example.utils
+package org.example.util
 
 import dev.kord.common.entity.Snowflake
 import dev.kord.core.behavior.channel.GuildMessageChannelBehavior

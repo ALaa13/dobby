@@ -1,27 +1,27 @@
-package org.example.commands
+package org.example.command
 
 import dev.kord.core.behavior.edit
 import dev.kord.core.behavior.interaction.respondPublic
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
-import org.example.utils.DiscordStrings
-import org.koin.core.component.KoinComponent
+import org.example.util.DiscordStrings
 
-class PingCommand : ChatInputCommand(), KoinComponent {
+class PingCommand : ChatInputCommand() {
 
     override val name = DiscordStrings.Commands.Ping.NAME
     override val description = DiscordStrings.Commands.Ping.DESCRIPTION
 
     override suspend fun run(event: GuildChatInputCommandInteractionCreateEvent) {
+        val interaction = event.interaction
         val timeBefore = System.currentTimeMillis()
 
-        event.interaction.respondPublic {
+        interaction.respondPublic {
             content = DiscordStrings.Commands.Ping.DEFERRED_MESSAGE
         }
 
         val timeAfter = System.currentTimeMillis()
         val ping = timeAfter - timeBefore
 
-        event.interaction.getOriginalInteractionResponse().edit {
+        interaction.getOriginalInteractionResponse().edit {
             content = "🏓 Pong! Latency: ${ping}ms"
         }
     }
