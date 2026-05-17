@@ -5,7 +5,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.example.config.BotConfig
-import org.example.dto.RoastDeliveryResponse
+import org.example.dto.RoastProcessedDeliveryRequest
 import org.example.service.RoastDeliveryService
 import org.example.util.DiscordStrings
 
@@ -21,9 +21,9 @@ fun Route.internalBotDeliveryRoute(
             return@post
         }
 
-        val request = call.receive<RoastDeliveryResponse>()
+        val request = call.receive<RoastProcessedDeliveryRequest>()
         try {
-            roastDeliveryService.editRoastMessage(request.channelId, request.content)
+            roastDeliveryService.editRoastMessage(request)
             call.respond(HttpStatusCode.OK)
         } catch (e: Exception) {
             call.respond(HttpStatusCode.InternalServerError, "Failed to edit Discord message: ${e.message}")

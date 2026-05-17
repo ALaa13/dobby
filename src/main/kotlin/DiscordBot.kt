@@ -12,7 +12,7 @@ import org.example.command.ChatInputCommand
 import org.example.command.MessageCommand
 import org.example.command.UserCommand
 import org.example.config.BotConfig
-import org.example.service.LoggingService
+import org.example.service.Logging
 
 class DiscordBot(
     private val config: BotConfig,
@@ -23,7 +23,7 @@ class DiscordBot(
     suspend fun start() {
         registerSlashCommands()
         registerCommandHandlers()
-        LoggingService.logInfo("Bot is starting...")
+        Logging.logInfo("Bot is starting...")
         kord.login {
             @OptIn(PrivilegedIntent::class)
             intents += Intent.Guilds
@@ -36,14 +36,14 @@ class DiscordBot(
             kord.createGuildApplicationCommands(guildId = config.devGuildId) {
                 applicationCommands.forEach { it.register(this) }
             }.collect {
-                LoggingService.logInfo("Registered ${it.name} ${it.type} command to guild ${config.devGuildId}")
+                Logging.logInfo("Registered ${it.name} ${it.type} command to guild ${config.devGuildId}")
             }
         } else {
             // Register commands globally (takes up to 1 hour to propagate)
             kord.createGlobalApplicationCommands {
                 applicationCommands.forEach { it.register(this) }
             }.collect {
-                LoggingService.logInfo("Registered ${applicationCommands.size} slash commands globally")
+                Logging.logInfo("Registered ${applicationCommands.size} slash commands globally")
             }
         }
     }
@@ -57,19 +57,19 @@ class DiscordBot(
         // Handle Chat Input Commands (slash commands)
         kord.on<GuildChatInputCommandInteractionCreateEvent> {
             chatCommands[interaction.invokedCommandName]?.execute(this)
-                ?: LoggingService.logError("Unknown chat command: ${interaction.invokedCommandName}")
+                ?: Logging.logError("Unknown chat command: ${interaction.invokedCommandName}")
         }
 
         // Handle User Commands (right-click on user)
         kord.on<GuildUserCommandInteractionCreateEvent> {
             userCommands[interaction.invokedCommandName]?.execute(this)
-                ?: LoggingService.logError("Unknown user command: ${interaction.invokedCommandName}")
+                ?: Logging.logError("Unknown user command: ${interaction.invokedCommandName}")
         }
 
         // Handle Message Commands (right-click on a message)
         kord.on<GuildMessageCommandInteractionCreateEvent> {
             messageCommands[interaction.invokedCommandName]?.execute(this)
-                ?: LoggingService.logError("Unknown message command: ${interaction.invokedCommandName}")
+                ?: Logging.logError("Unknown message command: ${interaction.invokedCommandName}")
         }
     }
 }

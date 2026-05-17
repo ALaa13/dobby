@@ -12,7 +12,8 @@ object DiscordStrings {
             const val NAME = "roast"
             const val DESCRIPTION = "Roast the living soul outta the Homies in this channel"
             const val DEFERRED_MESSAGE = "Aight fam, lemme cook"
-            const val REPLIED_MESSAGE_TITLE = "🔥 The Roast Master Has Spoken 🔥"
+            const val SUCCESS_REPLIED_MESSAGE_TITLE = "🔥 The Roast Master Has Spoken 🔥"
+            const val FAILURE_REPLIED_MESSAGE_TITLE = "❌ Roast Failed ❌"
 
             object Count {
                 const val NAME = "count"

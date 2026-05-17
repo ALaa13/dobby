@@ -8,7 +8,7 @@ import dev.kord.rest.builder.interaction.MultiApplicationCommandBuilder
 import dev.kord.rest.builder.interaction.input
 import dev.kord.rest.builder.interaction.message
 import dev.kord.rest.builder.interaction.user
-import org.example.service.LoggingService
+import org.example.service.Logging
 
 // Base interface for all command types
 abstract class ApplicationCommand<T : InteractionCreateEvent> {
@@ -18,13 +18,13 @@ abstract class ApplicationCommand<T : InteractionCreateEvent> {
     suspend fun execute(event: T) {
         try {
             run(event)
-            LoggingService.logCommand(
+            Logging.logCommand(
                 userId = event.interaction.user.id.toString(),
                 command = name,
                 guildId = event.interaction.data.guildId.value?.toString()
             )
         } catch (e: Exception) {
-            LoggingService.logError("Error executing $name", e)
+            Logging.logError("Error executing $name", e)
             throw e
         }
     }

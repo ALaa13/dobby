@@ -3,7 +3,8 @@ package org.example.dto
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RoastDeliveryResponse(
+data class RoastProcessedDeliveryRequest(
     val channelId: String,
-    val content: String
+    val content: String,
+    val success: Boolean
 )
