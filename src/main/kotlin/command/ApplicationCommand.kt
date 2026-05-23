@@ -8,7 +8,7 @@ import dev.kord.rest.builder.interaction.MultiApplicationCommandBuilder
 import dev.kord.rest.builder.interaction.input
 import dev.kord.rest.builder.interaction.message
 import dev.kord.rest.builder.interaction.user
-import org.example.service.Logging
+import org.example.util.Logging
 
 // Base interface for all command types
 abstract class ApplicationCommand<T : InteractionCreateEvent> {

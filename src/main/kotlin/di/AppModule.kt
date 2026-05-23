@@ -6,7 +6,6 @@ import org.example.DiscordBot
 import org.example.command.ApplicationCommand
 import org.example.command.PingCommand
 import org.example.command.RoastCommand
-import org.example.command.UserRoastCommand
 import org.example.config.BotConfig
 import org.example.config.EmbeddedServerManager
 import org.example.service.DobbyCoreBackend
@@ -29,8 +28,7 @@ fun appModule(config: BotConfig, kord: Kord, httpClient: HttpClient) = module {
     single<List<ApplicationCommand<*>>> {
         listOf(
             PingCommand(),
-            RoastCommand(get()),
-            UserRoastCommand(get())
+            RoastCommand(get())
         )
     }
 }

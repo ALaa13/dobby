@@ -2,50 +2,40 @@ package org.example.command
 
 import dev.kord.core.behavior.interaction.response.respond
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
-import dev.kord.rest.builder.interaction.MultiApplicationCommandBuilder
-import dev.kord.rest.builder.interaction.input
-import dev.kord.rest.builder.interaction.integer
-import dev.kord.rest.builder.interaction.user
+import dev.kord.rest.builder.interaction.*
+import org.example.dto.ChatMessage
+import org.example.dto.RoastDeliveryRequest
 import org.example.service.DobbyCoreBackend
-import org.example.util.DiscordStrings
-import org.example.util.FetchMessagesConfig
-import org.example.util.deliverRoast
-import org.example.util.fetchMessages
+import org.example.util.*
 
 class RoastCommand(
     private val dobbyCoreBackend: DobbyCoreBackend
 ) : ChatInputCommand() {
 
-    override val name = DiscordStrings.Commands.RoastChannel.NAME
-    override val description = DiscordStrings.Commands.RoastChannel.DESCRIPTION
+    override val name = DiscordStrings.Commands.Roast.NAME
+    override val description = DiscordStrings.Commands.Roast.DESCRIPTION
 
     override suspend fun register(builder: MultiApplicationCommandBuilder) {
         builder.input(name, description) {
             integer(
-                DiscordStrings.Commands.RoastChannel.Count.NAME,
-                DiscordStrings.Commands.RoastChannel.Count.DESCRIPTION
+                DiscordStrings.Commands.Roast.Count.NAME,
+                DiscordStrings.Commands.Roast.Count.DESCRIPTION
             ) {
                 required = false
-                choice(DiscordStrings.Commands.RoastChannel.Count.CHOICE_10, 10)
-                choice(DiscordStrings.Commands.RoastChannel.Count.CHOICE_50, 50)
-                choice(DiscordStrings.Commands.RoastChannel.Count.CHOICE_250, 250)
-                choice(DiscordStrings.Commands.RoastChannel.Count.CHOICE_500, 500)
+                choice(DiscordStrings.Commands.Roast.Count.CHOICE_10, 10)
+                choice(DiscordStrings.Commands.Roast.Count.CHOICE_50, 50)
+                choice(DiscordStrings.Commands.Roast.Count.CHOICE_250, 250)
+                choice(DiscordStrings.Commands.Roast.Count.CHOICE_500, 500)
             }
-            integer(
-                DiscordStrings.Commands.RoastChannel.Since.NAME,
-                DiscordStrings.Commands.RoastChannel.Since.DESCRIPTION
+            string(
+                DiscordStrings.Commands.Roast.Persona.NAME,
+                DiscordStrings.Commands.Roast.Persona.DESCRIPTION
             ) {
                 required = false
-                choice(DiscordStrings.Commands.RoastChannel.Since.CHOICE_30, 30)
-                choice(DiscordStrings.Commands.RoastChannel.Since.CHOICE_60, 60)
-                choice(DiscordStrings.Commands.RoastChannel.Since.CHOICE_180, 180)
-                choice(DiscordStrings.Commands.RoastChannel.Since.CHOICE_360, 360)
-                choice(DiscordStrings.Commands.RoastChannel.Since.CHOICE_720, 720)
-                choice(DiscordStrings.Commands.RoastChannel.Since.CHOICE_1440, 1440)
             }
             user(
-                DiscordStrings.Commands.RoastChannel.Target.NAME,
-                DiscordStrings.Commands.RoastChannel.Target.DESCRIPTION
+                DiscordStrings.Commands.Roast.Target.NAME,
+                DiscordStrings.Commands.Roast.Target.DESCRIPTION
             ) {
                 required = false
             }
@@ -54,36 +44,58 @@ class RoastCommand(
 
     override suspend fun run(event: GuildChatInputCommandInteractionCreateEvent) {
         val interaction = event.interaction
-
         val deferredMessage = interaction.deferEphemeralResponse()
+        val channel = interaction.channel
+
 
         // Get command options
-        val messagesCount = interaction.command.integers[DiscordStrings.Commands.RoastChannel.Count.NAME]?.toInt()
-        val sinceMessagesTime =
-            interaction.command.integers[DiscordStrings.Commands.RoastChannel.Since.NAME]?.toInt()
-        val target = interaction.command.users[DiscordStrings.Commands.RoastChannel.Target.NAME]
+        val messagesCount = interaction.command.integers[DiscordStrings.Commands.Roast.Count.NAME]?.toInt()
+        val target = interaction.command.users[DiscordStrings.Commands.Roast.Target.NAME]
+        val persona = interaction.command.strings[DiscordStrings.Commands.Roast.Persona.NAME]
 
         // The selected target is Bot and not a user
         if (target?.isBot == true) {
-            deferredMessage.respond { content = DiscordStrings.Commands.RoastChannel.Target.IS_BOT_REPLY }
+            deferredMessage.respond { content = DiscordStrings.Commands.Roast.IS_BOT_REPLY }
             return
         }
 
-        val channel = interaction.channel
-        val messages = fetchMessages(
-            channel,
-            interaction.id,
-            FetchMessagesConfig(
+        runCatching {
+            val config = FetchMessagesConfig(
                 messagesToFetch = messagesCount,
-                sinceMinutes = sinceMessagesTime,
                 authorId = target?.id
-            ),
-        )
-        deliverRoast(
+            )
+
+            val messages = fetchMessages(channel, interactionId = interaction.id, config = config)
+            val formattedMessages = formatMessagesForAI(messages)
+
+            deliverRoast(
+                channelId = channel.id.toString(),
+                messages = formattedMessages,
+                persona = persona
+            )
+        }.onSuccess { response ->
+            deferredMessage.respond { content = response }
+        }.onFailure { error ->
+            Logging.logError("Catastrophic failure during roast generation", error)
+            deferredMessage.respond { content = DiscordStrings.Commands.Roast.DISCORD_INTERACTION_FAILED }
+        }
+    }
+
+    private suspend fun deliverRoast(
+        channelId: String,
+        messages: List<ChatMessage>,
+        persona: String?
+    ): String {
+        val requestBody = RoastDeliveryRequest(
+            channelId = channelId,
             messages = messages,
-            channel = channel,
-            deferredMessage = deferredMessage,
-            dobbyCoreBackend = dobbyCoreBackend
+            persona = persona
         )
+
+        return if (dobbyCoreBackend.sendDiscordMessages(requestBody = requestBody)) {
+            DiscordStrings.Commands.Roast.DEFERRED_MESSAGE
+        } else {
+            DiscordStrings.HttpEndPoints.PostRoast.FAILED_MESSAGE
+        }
     }
 }

@@ -7,6 +7,7 @@ import io.ktor.http.*
 import org.example.config.BotConfig
 import org.example.dto.RoastDeliveryRequest
 import org.example.util.DiscordStrings
+import org.example.util.Logging
 
 class DobbyCoreBackend(
     private val config: BotConfig,

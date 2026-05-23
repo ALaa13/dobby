@@ -8,42 +8,36 @@ object DiscordStrings {
             const val DEFERRED_MESSAGE = "Calculating ping..."
         }
 
-        object RoastChannel {
+        object Roast {
             const val NAME = "roast"
             const val DESCRIPTION = "Roast the living soul outta the Homies in this channel"
             const val DEFERRED_MESSAGE = "Aight fam, lemme cook"
             const val SUCCESS_REPLIED_MESSAGE_TITLE = "🔥 The Roast Master Has Spoken 🔥"
             const val FAILURE_REPLIED_MESSAGE_TITLE = "❌ Roast Failed ❌"
+            const val IS_BOT_REPLY = "Yo fam I ain't roasting one of my own. Pick a human"
+            const val DISCORD_INTERACTION_FAILED =
+                "Ugh fam, I couldn't deliver the roast to the channel... Try again later"
+
 
             object Count {
                 const val NAME = "count"
-                const val DESCRIPTION = "How many messages to read for the roast"
+                const val DESCRIPTION = "How many messages to read for the roast (Default 50)"
                 const val CHOICE_10 = "Last 10 messages"
                 const val CHOICE_50 = "Last 50 messages"
                 const val CHOICE_250 = "Last 250 messages"
                 const val CHOICE_500 = "Last 500 messages"
             }
 
-            object Since {
-                const val NAME = "since"
-                const val DESCRIPTION = "How far back to read messages for the roast"
-                const val CHOICE_30 = "Last 30 minutes"
-                const val CHOICE_60 = "Last 1 hour"
-                const val CHOICE_180 = "Last 3 hours"
-                const val CHOICE_360 = "Last 6 hours"
-                const val CHOICE_720 = "Last 12 hours"
-                const val CHOICE_1440 = "Last 24 hours"
+            object Persona {
+                const val NAME = "persona"
+                const val DESCRIPTION =
+                    "Type a persona for the roast e.g. league of legends (Default: No persona, just a straight up roast)"
             }
 
             object Target {
                 const val NAME = "target"
                 const val DESCRIPTION = "Roast a specific homie instead of the whole channel"
-                const val IS_BOT_REPLY = "Yo fam I ain't roasting one of my own. Pick a human"
             }
-        }
-
-        object RoastUser {
-            const val NAME = "Roast this homie"
         }
     }
 
