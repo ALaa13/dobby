@@ -6,6 +6,7 @@ import dev.kord.rest.builder.message.embed
 import dev.kord.rest.request.KtorRequestException
 import org.example.dto.RoastProcessedDeliveryRequest
 import org.example.util.DiscordStrings
+import org.example.util.Logging
 
 
 class RoastDeliveryService(private val kord: Kord) {
@@ -17,12 +18,12 @@ class RoastDeliveryService(private val kord: Kord) {
 
             when (roastProcessedDeliveryRequest.success) {
                 true -> {
-                    embedTitle = DiscordStrings.Commands.RoastChannel.SUCCESS_REPLIED_MESSAGE_TITLE
+                    embedTitle = DiscordStrings.Commands.Roast.SUCCESS_REPLIED_MESSAGE_TITLE
                     embedDescription = roastProcessedDeliveryRequest.content
                 }
 
                 false -> {
-                    embedTitle = DiscordStrings.Commands.RoastChannel.FAILURE_REPLIED_MESSAGE_TITLE
+                    embedTitle = DiscordStrings.Commands.Roast.FAILURE_REPLIED_MESSAGE_TITLE
                     embedDescription = DiscordStrings.HttpEndPoints.PostRoast.FAILED_MESSAGE
                 }
             }

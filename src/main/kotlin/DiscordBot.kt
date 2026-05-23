@@ -12,7 +12,7 @@ import org.example.command.ChatInputCommand
 import org.example.command.MessageCommand
 import org.example.command.UserCommand
 import org.example.config.BotConfig
-import org.example.service.Logging
+import org.example.util.Logging
 
 class DiscordBot(
     private val config: BotConfig,

@@ -5,5 +5,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class RoastDeliveryRequest(
     val channelId: String,
-    val messages: List<ChatMessage>
+    val messages: List<ChatMessage>,
+    val persona: String?
 )
