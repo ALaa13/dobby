@@ -24,7 +24,7 @@ class RoastDeliveryService(private val kord: Kord) {
 
                 false -> {
                     embedTitle = DiscordStrings.Commands.Roast.FAILURE_REPLIED_MESSAGE_TITLE
-                    embedDescription = DiscordStrings.HttpEndPoints.PostRoast.FAILED_MESSAGE
+                    embedDescription = DiscordStrings.HttpEndPoints.FAILED_MESSAGE
                 }
             }
             kord.rest.channel.createMessage(channelSnowflake) {

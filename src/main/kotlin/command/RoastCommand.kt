@@ -77,7 +77,7 @@ class RoastCommand(
             deferredMessage.respond { content = response }
         }.onFailure { error ->
             Logging.logError("Catastrophic failure during roast generation", error)
-            deferredMessage.respond { content = DiscordStrings.Commands.Roast.DISCORD_INTERACTION_FAILED }
+            deferredMessage.respond { content = DiscordStrings.Commands.DISCORD_INTERACTION_FAILED }
         }
     }
 
@@ -95,7 +95,7 @@ class RoastCommand(
         return if (dobbyCoreBackend.sendDiscordMessages(requestBody = requestBody)) {
             DiscordStrings.Commands.Roast.DEFERRED_MESSAGE
         } else {
-            DiscordStrings.HttpEndPoints.PostRoast.FAILED_MESSAGE
+            DiscordStrings.HttpEndPoints.FAILED_MESSAGE
         }
     }
 }

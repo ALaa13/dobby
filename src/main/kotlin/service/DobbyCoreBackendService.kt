@@ -5,6 +5,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import org.example.config.BotConfig
+import org.example.dto.RememberFactRequest
 import org.example.dto.RoastDeliveryRequest
 import org.example.util.DiscordStrings
 import org.example.util.Logging
@@ -23,6 +24,20 @@ class DobbyCoreBackend(
             response.status.isSuccess()
         } catch (e: Exception) {
             Logging.logError("Error sending roast delivery request to Dobby Core Backend: ${e.message}")
+            false
+        }
+    }
+
+    suspend fun sendFactRequest(rememberFactRequest: RememberFactRequest): Boolean {
+        return try {
+            val urlString = config.dobbyBackendUrl + DiscordStrings.HttpEndPoints.PostRemember.PATH
+            val response: HttpResponse = client.post(urlString) {
+                contentType(ContentType.Application.Json)
+                setBody(rememberFactRequest)
+            }
+            response.status.isSuccess()
+        } catch (e: Exception) {
+            Logging.logError("Error sending remember request to Dobby Core Backend: ${e.message}")
             false
         }
     }
