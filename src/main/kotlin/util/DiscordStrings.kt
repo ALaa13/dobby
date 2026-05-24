@@ -4,6 +4,7 @@ object DiscordStrings {
     object Commands {
         const val DISCORD_INTERACTION_FAILED =
             "Ugh fam, I couldn't deliver the roast to the channel... Try again later"
+        const val IS_BOT_REPLY = "Yo fam I ain't roasting one of my own. Pick a human"
 
         object Ping {
             const val NAME = "ping"
@@ -17,7 +18,6 @@ object DiscordStrings {
             const val DEFERRED_MESSAGE = "Aight fam, lemme cook"
             const val SUCCESS_REPLIED_MESSAGE_TITLE = "🔥 The Roast Master Has Spoken 🔥"
             const val FAILURE_REPLIED_MESSAGE_TITLE = "❌ Roast Failed ❌"
-            const val IS_BOT_REPLY = "Yo fam I ain't roasting one of my own. Pick a human"
 
 
             object Count {

@@ -40,14 +40,20 @@ class RememberCommand(
         val deferredMessage = interaction.deferEphemeralResponse()
 
         // Get command options
-        val user = interaction.command.users[DiscordStrings.Commands.Remember.Target.NAME]!!
+        val target = interaction.command.users[DiscordStrings.Commands.Remember.Target.NAME]!!
         val fact = interaction.command.strings[DiscordStrings.Commands.Remember.Fact.NAME]!!
+
+        // The selected target is Bot and not a user
+        if (target.isBot) {
+            deferredMessage.respond { content = DiscordStrings.Commands.IS_BOT_REPLY }
+            return
+        }
 
         runCatching {
             deliverFact(
                 fact = fact,
-                discordUserid = user.id.toString(),
-                displayName = user.username,
+                discordUserid = target.id.toString(),
+                displayName = target.username,
                 guildId = interaction.guildId.toString(),
 
                 )

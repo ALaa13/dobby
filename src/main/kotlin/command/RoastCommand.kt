@@ -55,7 +55,7 @@ class RoastCommand(
 
         // The selected target is Bot and not a user
         if (target?.isBot == true) {
-            deferredMessage.respond { content = DiscordStrings.Commands.Roast.IS_BOT_REPLY }
+            deferredMessage.respond { content = DiscordStrings.Commands.IS_BOT_REPLY }
             return
         }
 
