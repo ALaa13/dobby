@@ -2,6 +2,9 @@ package org.example.util
 
 object DiscordStrings {
     object Commands {
+        const val DISCORD_INTERACTION_FAILED =
+            "Ugh fam, I couldn't deliver the roast to the channel... Try again later"
+
         object Ping {
             const val NAME = "ping"
             const val DESCRIPTION = "Check bot latency"
@@ -15,8 +18,6 @@ object DiscordStrings {
             const val SUCCESS_REPLIED_MESSAGE_TITLE = "🔥 The Roast Master Has Spoken 🔥"
             const val FAILURE_REPLIED_MESSAGE_TITLE = "❌ Roast Failed ❌"
             const val IS_BOT_REPLY = "Yo fam I ain't roasting one of my own. Pick a human"
-            const val DISCORD_INTERACTION_FAILED =
-                "Ugh fam, I couldn't deliver the roast to the channel... Try again later"
 
 
             object Count {
@@ -39,12 +40,34 @@ object DiscordStrings {
                 const val DESCRIPTION = "Roast a specific homie instead of the whole channel"
             }
         }
+
+        object Remember {
+            const val NAME = "remember"
+            const val DESCRIPTION = "Snitch a fact about your homie to be remembered and used against them"
+            const val SUCCESS_REPLY = "Fact stored successfully fam! 🔐"
+
+
+            object Target {
+                const val NAME = "target"
+                const val DESCRIPTION = "The homie the fact is about"
+            }
+
+            object Fact {
+                const val NAME = "fact"
+                const val DESCRIPTION = "The fact to be remembered (e.g. Small PP)"
+            }
+        }
     }
 
     object HttpEndPoints {
+        const val FAILED_MESSAGE = "Ugh fam, my brain aka the server is down... Try again later"
+
         object PostRoast {
-            const val PATH = "/roasts"
-            const val FAILED_MESSAGE = "Ugh fam, my brain aka the server is down... Try again later"
+            const val PATH = "/roast"
+        }
+
+        object PostRemember {
+            const val PATH = "/remember"
         }
 
         object InternalBotDelivery {

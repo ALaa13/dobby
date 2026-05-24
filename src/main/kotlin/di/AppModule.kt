@@ -5,6 +5,7 @@ import io.ktor.client.*
 import org.example.DiscordBot
 import org.example.command.ApplicationCommand
 import org.example.command.PingCommand
+import org.example.command.RememberCommand
 import org.example.command.RoastCommand
 import org.example.config.BotConfig
 import org.example.config.EmbeddedServerManager
@@ -28,7 +29,8 @@ fun appModule(config: BotConfig, kord: Kord, httpClient: HttpClient) = module {
     single<List<ApplicationCommand<*>>> {
         listOf(
             PingCommand(),
-            RoastCommand(get())
+            RoastCommand(get()),
+            RememberCommand(get())
         )
     }
 }
