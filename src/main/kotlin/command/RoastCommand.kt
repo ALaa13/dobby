@@ -24,6 +24,7 @@ class RoastCommand(
                 required = false
                 choice(DiscordStrings.Commands.Roast.Count.CHOICE_10, 10)
                 choice(DiscordStrings.Commands.Roast.Count.CHOICE_50, 50)
+                choice(DiscordStrings.Commands.Roast.Count.CHOICE_100, 100)
                 choice(DiscordStrings.Commands.Roast.Count.CHOICE_250, 250)
                 choice(DiscordStrings.Commands.Roast.Count.CHOICE_500, 500)
             }
@@ -61,7 +62,7 @@ class RoastCommand(
 
         runCatching {
             val config = FetchMessagesConfig(
-                messagesToFetch = messagesCount,
+                messagesToFetch = messagesCount ?: 50,
                 authorId = target?.id
             )
 
@@ -70,6 +71,7 @@ class RoastCommand(
 
             deliverRoast(
                 channelId = channel.id.toString(),
+                guildId = interaction.guildId.toString(),
                 messages = formattedMessages,
                 persona = persona
             )
@@ -83,11 +85,13 @@ class RoastCommand(
 
     private suspend fun deliverRoast(
         channelId: String,
+        guildId: String,
         messages: List<ChatMessage>,
         persona: String?
     ): String {
         val requestBody = RoastDeliveryRequest(
             channelId = channelId,
+            guildId = guildId,
             messages = messages,
             persona = persona
         )

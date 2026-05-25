@@ -25,6 +25,7 @@ object DiscordStrings {
                 const val DESCRIPTION = "How many messages to read for the roast (Default 50)"
                 const val CHOICE_10 = "Last 10 messages"
                 const val CHOICE_50 = "Last 50 messages"
+                const val CHOICE_100 = "Last 100 messages"
                 const val CHOICE_250 = "Last 250 messages"
                 const val CHOICE_500 = "Last 500 messages"
             }
@@ -41,8 +42,8 @@ object DiscordStrings {
             }
         }
 
-        object Remember {
-            const val NAME = "remember"
+        object Fact {
+            const val NAME = "fact"
             const val DESCRIPTION = "Snitch a fact about your homie to be remembered and used against them"
             const val SUCCESS_REPLY = "Fact stored successfully fam! 🔐"
 
@@ -67,7 +68,7 @@ object DiscordStrings {
         }
 
         object PostRemember {
-            const val PATH = "/remember"
+            const val PATH = "/fact"
         }
 
         object InternalBotDelivery {
