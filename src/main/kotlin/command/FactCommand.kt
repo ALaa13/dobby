@@ -6,29 +6,29 @@ import dev.kord.rest.builder.interaction.MultiApplicationCommandBuilder
 import dev.kord.rest.builder.interaction.input
 import dev.kord.rest.builder.interaction.string
 import dev.kord.rest.builder.interaction.user
-import org.example.dto.RememberFactRequest
+import org.example.dto.FactRequest
 import org.example.service.DobbyCoreBackend
 import org.example.util.DiscordStrings
 import org.example.util.Logging
 
-class RememberCommand(
+class FactCommand(
     private val dobbyCoreBackend: DobbyCoreBackend
 ) : ChatInputCommand() {
 
-    override val name = DiscordStrings.Commands.Remember.NAME
-    override val description = DiscordStrings.Commands.Remember.DESCRIPTION
+    override val name = DiscordStrings.Commands.Fact.NAME
+    override val description = DiscordStrings.Commands.Fact.DESCRIPTION
 
     override suspend fun register(builder: MultiApplicationCommandBuilder) {
         builder.input(name, description) {
             user(
-                DiscordStrings.Commands.Remember.Target.NAME,
-                DiscordStrings.Commands.Remember.Target.DESCRIPTION
+                DiscordStrings.Commands.Fact.Target.NAME,
+                DiscordStrings.Commands.Fact.Target.DESCRIPTION
             ) {
                 required = true
             }
             string(
-                DiscordStrings.Commands.Remember.Fact.NAME,
-                DiscordStrings.Commands.Remember.Fact.DESCRIPTION
+                DiscordStrings.Commands.Fact.Fact.NAME,
+                DiscordStrings.Commands.Fact.Fact.DESCRIPTION
             ) {
                 required = true
             }
@@ -40,8 +40,8 @@ class RememberCommand(
         val deferredMessage = interaction.deferEphemeralResponse()
 
         // Get command options
-        val target = interaction.command.users[DiscordStrings.Commands.Remember.Target.NAME]!!
-        val fact = interaction.command.strings[DiscordStrings.Commands.Remember.Fact.NAME]!!
+        val target = interaction.command.users[DiscordStrings.Commands.Fact.Target.NAME]!!
+        val fact = interaction.command.strings[DiscordStrings.Commands.Fact.Fact.NAME]!!
 
         // The selected target is Bot and not a user
         if (target.isBot) {
@@ -71,14 +71,14 @@ class RememberCommand(
         displayName: String,
         guildId: String
     ): String {
-        val requestBody = RememberFactRequest(
+        val requestBody = FactRequest(
             fact = fact,
             discordUserId = discordUserid,
             guildId = guildId,
             displayName = displayName
         )
-        return if (dobbyCoreBackend.sendFactRequest(rememberFactRequest = requestBody)) {
-            DiscordStrings.Commands.Remember.SUCCESS_REPLY
+        return if (dobbyCoreBackend.sendFactRequest(factRequest = requestBody)) {
+            DiscordStrings.Commands.Fact.SUCCESS_REPLY
         } else {
             DiscordStrings.HttpEndPoints.FAILED_MESSAGE
         }
