@@ -58,6 +58,27 @@ object DiscordStrings {
                 const val DESCRIPTION = "The fact to be remembered (e.g. Small PP)"
             }
         }
+
+        object GetFacts {
+            const val NAME = "display-facts"
+            const val DESCRIPTION = "Get a list of all facts stored about your homies"
+            const val NO_FACTS_FOUND = "No facts found for this homie"
+            const val SUCCESS_REPLY = "Here are the facts I found for this homie"
+            const val SUCCESS_EMBED_TITLE = "🧠 Dobby's Blackmail Folder"
+
+
+            object Target {
+                const val NAME = "target"
+                const val DESCRIPTION = "The homie to get facts about"
+            }
+        }
+
+        object ResetFacts {
+            const val NAME = "clean-record"
+            const val DESCRIPTION = "Clear all facts stored, Use with caution, this cannot be undone!"
+            const val SUCCESS_REPLY = "Facts cleared successfully fam! 🧹"
+            const val FAILURE_REPLY = "This homie doesn't have any facts to clear!"
+        }
     }
 
     object HttpEndPoints {
@@ -67,7 +88,7 @@ object DiscordStrings {
             const val PATH = "/roast"
         }
 
-        object PostRemember {
+        object PostGetDeleteFact {
             const val PATH = "/fact"
         }
 
