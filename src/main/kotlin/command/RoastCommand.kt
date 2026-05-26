@@ -1,12 +1,14 @@
 package org.example.command
 
-import dev.kord.core.behavior.interaction.response.respond
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
 import dev.kord.rest.builder.interaction.*
 import org.example.dto.ChatMessage
 import org.example.dto.RoastDeliveryRequest
 import org.example.service.DobbyCoreBackend
-import org.example.util.*
+import org.example.util.DiscordStrings
+import org.example.util.FetchMessagesConfig
+import org.example.util.fetchMessages
+import org.example.util.formatMessagesForAI
 
 class RoastCommand(
     private val dobbyCoreBackend: DobbyCoreBackend
@@ -45,22 +47,17 @@ class RoastCommand(
 
     override suspend fun run(event: GuildChatInputCommandInteractionCreateEvent) {
         val interaction = event.interaction
-        val deferredMessage = interaction.deferEphemeralResponse()
         val channel = interaction.channel
 
-
-        // Get command options
         val messagesCount = interaction.command.integers[DiscordStrings.Commands.Roast.Count.NAME]?.toInt()
         val target = interaction.command.users[DiscordStrings.Commands.Roast.Target.NAME]
         val persona = interaction.command.strings[DiscordStrings.Commands.Roast.Persona.NAME]
 
-        // The selected target is Bot and not a user
-        if (target?.isBot == true) {
-            deferredMessage.respond { content = DiscordStrings.Commands.IS_BOT_REPLY }
-            return
-        }
-
-        runCatching {
+        respondEphemeral(
+            event = event,
+            botGuardTarget = target,
+            errorLogMessage = "Catastrophic failure during roast generation"
+        ) {
             val config = FetchMessagesConfig(
                 messagesToFetch = messagesCount ?: 50,
                 authorId = target?.id
@@ -75,11 +72,6 @@ class RoastCommand(
                 messages = formattedMessages,
                 persona = persona
             )
-        }.onSuccess { response ->
-            deferredMessage.respond { content = response }
-        }.onFailure { error ->
-            Logging.logError("Catastrophic failure during roast generation", error)
-            deferredMessage.respond { content = DiscordStrings.Commands.DISCORD_INTERACTION_FAILED }
         }
     }
 

@@ -3,10 +3,7 @@ package org.example.di
 import dev.kord.core.Kord
 import io.ktor.client.*
 import org.example.DiscordBot
-import org.example.command.ApplicationCommand
-import org.example.command.FactCommand
-import org.example.command.PingCommand
-import org.example.command.RoastCommand
+import org.example.command.*
 import org.example.config.BotConfig
 import org.example.config.EmbeddedServerManager
 import org.example.service.DobbyCoreBackend
@@ -30,7 +27,9 @@ fun appModule(config: BotConfig, kord: Kord, httpClient: HttpClient) = module {
         listOf(
             PingCommand(),
             RoastCommand(get()),
-            FactCommand(get())
+            FactCommand(get()),
+            DisplayFactsCommand(get()),
+            ResetFactsCommand(get())
         )
     }
 }

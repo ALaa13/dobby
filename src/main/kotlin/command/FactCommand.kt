@@ -1,6 +1,5 @@
 package org.example.command
 
-import dev.kord.core.behavior.interaction.response.respond
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
 import dev.kord.rest.builder.interaction.MultiApplicationCommandBuilder
 import dev.kord.rest.builder.interaction.input
@@ -9,7 +8,6 @@ import dev.kord.rest.builder.interaction.user
 import org.example.dto.FactRequest
 import org.example.service.DobbyCoreBackend
 import org.example.util.DiscordStrings
-import org.example.util.Logging
 
 class FactCommand(
     private val dobbyCoreBackend: DobbyCoreBackend
@@ -37,35 +35,24 @@ class FactCommand(
 
     override suspend fun run(event: GuildChatInputCommandInteractionCreateEvent) {
         val interaction = event.interaction
-        val deferredMessage = interaction.deferEphemeralResponse()
-
-        // Get command options
         val target = interaction.command.users[DiscordStrings.Commands.Fact.Target.NAME]!!
         val fact = interaction.command.strings[DiscordStrings.Commands.Fact.Fact.NAME]!!
 
-        // The selected target is Bot and not a user
-        if (target.isBot) {
-            deferredMessage.respond { content = DiscordStrings.Commands.IS_BOT_REPLY }
-            return
-        }
-
-        runCatching {
-            deliverFact(
+        respondEphemeral(
+            event = event,
+            botGuardTarget = target,
+            errorLogMessage = "Catastrophic failure during fact delivery"
+        ) {
+            sendFact(
                 fact = fact,
                 discordUserid = target.id.toString(),
                 displayName = target.username,
                 guildId = interaction.guildId.toString(),
-
-                )
-        }.onSuccess { response ->
-            deferredMessage.respond { content = response }
-        }.onFailure { error ->
-            Logging.logError("Catastrophic failure during roast generation", error)
-            deferredMessage.respond { content = DiscordStrings.Commands.DISCORD_INTERACTION_FAILED }
+            )
         }
     }
 
-    private suspend fun deliverFact(
+    private suspend fun sendFact(
         fact: String,
         discordUserid: String,
         displayName: String,

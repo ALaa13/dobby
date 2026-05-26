@@ -1,5 +1,7 @@
 package org.example.command
 
+import dev.kord.core.behavior.interaction.response.respond
+import dev.kord.core.entity.User
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
 import dev.kord.core.event.interaction.GuildMessageCommandInteractionCreateEvent
 import dev.kord.core.event.interaction.GuildUserCommandInteractionCreateEvent
@@ -8,6 +10,7 @@ import dev.kord.rest.builder.interaction.MultiApplicationCommandBuilder
 import dev.kord.rest.builder.interaction.input
 import dev.kord.rest.builder.interaction.message
 import dev.kord.rest.builder.interaction.user
+import org.example.util.DiscordStrings
 import org.example.util.Logging
 
 // Base interface for all command types
@@ -42,6 +45,29 @@ abstract class ChatInputCommand() :
     }
 
     abstract override suspend fun run(event: GuildChatInputCommandInteractionCreateEvent)
+
+    protected suspend fun respondEphemeral(
+        event: GuildChatInputCommandInteractionCreateEvent,
+        botGuardTarget: User? = null,
+        errorLogMessage: String = "Error executing $name",
+        responseContent: suspend () -> String
+    ) {
+        val deferredMessage = event.interaction.deferEphemeralResponse()
+
+        if (botGuardTarget?.isBot == true) {
+            deferredMessage.respond { content = DiscordStrings.Commands.IS_BOT_REPLY }
+            return
+        }
+
+        runCatching {
+            responseContent()
+        }.onSuccess { response ->
+            deferredMessage.respond { content = response }
+        }.onFailure { error ->
+            Logging.logError(errorLogMessage, error)
+            deferredMessage.respond { content = DiscordStrings.Commands.DISCORD_INTERACTION_FAILED }
+        }
+    }
 }
 
 // User Commands (Right-click on user)
