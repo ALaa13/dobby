@@ -18,7 +18,7 @@ class ResetFactsCommand(
             botGuardTarget = target,
             errorLogMessage = "Catastrophic failure during facts reset"
         ) {
-            when (dobbyCoreBackend.deleteFactsForUser(
+            content = when (dobbyCoreBackend.deleteFactsForUser(
                 target.id.toString(),
                 interaction.guildId.toString()
             )) {

@@ -5,6 +5,7 @@ import dev.kord.rest.builder.interaction.MultiApplicationCommandBuilder
 import dev.kord.rest.builder.interaction.input
 import dev.kord.rest.builder.interaction.string
 import dev.kord.rest.builder.interaction.user
+import dev.kord.rest.builder.message.modify.InteractionResponseModifyBuilder
 import org.example.dto.FactRequest
 import org.example.service.DobbyCoreBackend
 import org.example.util.DiscordStrings
@@ -48,6 +49,7 @@ class FactCommand(
                 discordUserid = target.id.toString(),
                 displayName = target.username,
                 guildId = interaction.guildId.toString(),
+                builder = this
             )
         }
     }
@@ -56,18 +58,18 @@ class FactCommand(
         fact: String,
         discordUserid: String,
         displayName: String,
-        guildId: String
-    ): String {
+        guildId: String,
+        builder: InteractionResponseModifyBuilder
+    ) {
         val requestBody = FactRequest(
             fact = fact,
             discordUserId = discordUserid,
             guildId = guildId,
             displayName = displayName
         )
-        return if (dobbyCoreBackend.sendFactRequest(factRequest = requestBody)) {
-            DiscordStrings.Commands.Fact.SUCCESS_REPLY
-        } else {
-            DiscordStrings.HttpEndPoints.FAILED_MESSAGE
+        builder.content = when {
+            dobbyCoreBackend.sendFactRequest(factRequest = requestBody) -> DiscordStrings.Commands.Fact.SUCCESS_REPLY
+            else -> DiscordStrings.HttpEndPoints.FAILED_MESSAGE
         }
     }
 }
