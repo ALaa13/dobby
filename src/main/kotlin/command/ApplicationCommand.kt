@@ -10,6 +10,7 @@ import dev.kord.rest.builder.interaction.MultiApplicationCommandBuilder
 import dev.kord.rest.builder.interaction.input
 import dev.kord.rest.builder.interaction.message
 import dev.kord.rest.builder.interaction.user
+import dev.kord.rest.builder.message.modify.InteractionResponseModifyBuilder
 import org.example.util.DiscordStrings
 import org.example.util.Logging
 
@@ -50,7 +51,7 @@ abstract class ChatInputCommand() :
         event: GuildChatInputCommandInteractionCreateEvent,
         botGuardTarget: User? = null,
         errorLogMessage: String = "Error executing $name",
-        responseContent: suspend () -> String
+        responseContent: suspend InteractionResponseModifyBuilder.() -> Unit
     ) {
         val deferredMessage = event.interaction.deferEphemeralResponse()
 
@@ -60,9 +61,14 @@ abstract class ChatInputCommand() :
         }
 
         runCatching {
-            responseContent()
-        }.onSuccess { response ->
-            deferredMessage.respond { content = response }
+            val builder = InteractionResponseModifyBuilder()
+            builder.responseContent()
+            deferredMessage.respond {
+                builder.content?.let { this.content = it }
+                if (!builder.embeds.isNullOrEmpty()) {
+                    this.embeds = builder.embeds
+                }
+            }
         }.onFailure { error ->
             Logging.logError(errorLogMessage, error)
             deferredMessage.respond { content = DiscordStrings.Commands.DISCORD_INTERACTION_FAILED }

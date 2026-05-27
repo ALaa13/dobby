@@ -1,6 +1,5 @@
 package org.example.command
 
-import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
 import dev.kord.rest.builder.interaction.MultiApplicationCommandBuilder
 import dev.kord.rest.builder.interaction.input
@@ -41,10 +40,18 @@ class DisplayFactsCommand(
                 guildId = interaction.guildId.toString()
             )
             if (facts.isEmpty()) {
-                DiscordStrings.Commands.GetFacts.NO_FACTS_FOUND
+                content = DiscordStrings.Commands.GetFacts.NO_FACTS_FOUND
             } else {
-                respondWithFacts(event, facts)
-                DiscordStrings.Commands.GetFacts.SUCCESS_REPLY
+                embed {
+                    title = DiscordStrings.Commands.GetFacts.SUCCESS_EMBED_TITLE
+                    description = buildString {
+                        append("Facts about <@${target.id}>\n\n")
+
+                        facts.forEachIndexed { index, fact ->
+                            append("`#${index + 1}` ${fact.factText}\n")
+                        }
+                    }
+                }
             }
         }
     }
@@ -58,24 +65,6 @@ class DisplayFactsCommand(
             return emptyList()
         }
         return facts
-    }
-
-    suspend fun respondWithFacts(event: GuildChatInputCommandInteractionCreateEvent, facts: List<Fact>) {
-        val target = event.interaction.command.users[DiscordStrings.Commands.GetFacts.Target.NAME]!!
-        event.interaction.channel.createMessage {
-            embed {
-                title = DiscordStrings.Commands.GetFacts.SUCCESS_EMBED_TITLE
-
-                description =
-                    buildString {
-                        append("Facts about <@${target.id}>\n\n")
-
-                        facts.forEachIndexed { index, fact ->
-                            append("`#${index + 1}`  ${fact.factText}\n")
-                        }
-                    }
-            }
-        }
     }
 }
 

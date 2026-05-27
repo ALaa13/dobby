@@ -16,66 +16,64 @@ class DobbyCoreBackend(
     private val config: BotConfig,
     private val client: HttpClient
 ) {
-    suspend fun sendDiscordMessages(requestBody: RoastDeliveryRequest): Boolean {
-        return try {
-            val urlString = config.dobbyBackendUrl + DiscordStrings.HttpEndPoints.PostRoast.PATH
-            val response: HttpResponse = client.post(urlString) {
-                contentType(ContentType.Application.Json)
-                setBody(requestBody)
-            }
-            response.status.isSuccess()
-        } catch (e: Exception) {
-            Logging.logError("Error sending roast delivery request to Dobby Core Backend: ${e.message}")
-            false
-        }
+    private suspend fun <T> safeRequest(
+        errorMessage: String,
+        fallback: T,
+        block: suspend () -> T
+    ): T = try {
+        block()
+    } catch (e: Exception) {
+        Logging.logError("$errorMessage: ${e.message}")
+        fallback
     }
 
-    suspend fun sendFactRequest(factRequest: FactRequest): Boolean {
-        return try {
-            val urlString = config.dobbyBackendUrl + DiscordStrings.HttpEndPoints.PostGetDeleteFact.PATH
-            val response: HttpResponse = client.post(urlString) {
-                contentType(ContentType.Application.Json)
-                setBody(factRequest)
-            }
-            response.status.isSuccess()
-        } catch (e: Exception) {
-            Logging.logError("Error sending remember request to Dobby Core Backend: ${e.message}")
-            false
+    private suspend fun get(path: String, block: HttpRequestBuilder.() -> Unit): HttpResponse =
+        client.get(config.dobbyBackendUrl + path) {
+            contentType(ContentType.Application.Json)
+            block()
         }
-    }
 
-    suspend fun getFactsForUser(discordUserId: String, guildId: String): List<Fact> {
-        return try {
-            val urlString = config.dobbyBackendUrl + DiscordStrings.HttpEndPoints.PostGetDeleteFact.PATH
-            val response: HttpResponse = client.get(urlString) {
-                contentType(ContentType.Application.Json)
+    private suspend fun post(path: String, block: HttpRequestBuilder.() -> Unit): HttpResponse =
+        client.post(config.dobbyBackendUrl + path) {
+            contentType(ContentType.Application.Json)
+            block()
+        }
+
+    private suspend fun delete(path: String, block: HttpRequestBuilder.() -> Unit): HttpResponse =
+        client.delete(config.dobbyBackendUrl + path) {
+            contentType(ContentType.Application.Json)
+            block()
+        }
+
+    private suspend inline fun <reified T> HttpResponse.bodyOrFallback(fallback: T, errorMessage: String): T =
+        if (status.isSuccess()) body() else {
+            Logging.logError(errorMessage)
+            fallback
+        }
+
+    suspend fun sendDiscordMessages(requestBody: RoastDeliveryRequest): Boolean =
+        safeRequest("Error sending roast delivery request to Dobby Core Backend", false) {
+            post(DiscordStrings.HttpEndPoints.PostRoast.PATH) { setBody(requestBody) }.status.isSuccess()
+        }
+
+    suspend fun sendFactRequest(factRequest: FactRequest): Boolean =
+        safeRequest("Error sending remember request to Dobby Core Backend", false) {
+            post(DiscordStrings.HttpEndPoints.PostGetDeleteFact.PATH) { setBody(factRequest) }.status.isSuccess()
+        }
+
+    suspend fun getFactsForUser(discordUserId: String, guildId: String): List<Fact> =
+        safeRequest("Error getting facts for user $discordUserId from Dobby Core Backend", emptyList()) {
+            get(DiscordStrings.HttpEndPoints.PostGetDeleteFact.PATH) {
                 parameter("discord_user_id", discordUserId)
                 parameter("guild_id", guildId)
-            }
-            if (response.status.isSuccess()) {
-                response.body<List<Fact>>()
-            } else {
-                Logging.logError("Failed to get facts for user $discordUserId: ${response.status}")
-                emptyList()
-            }
-        } catch (e: Exception) {
-            Logging.logError("Error getting facts for user $discordUserId from Dobby Core Backend: ${e.message}")
-            emptyList()
+            }.bodyOrFallback(emptyList(), "Failed to get facts for user $discordUserId")
         }
-    }
 
-    suspend fun deleteFactsForUser(discordUserId: String, guildId: String): Boolean {
-        return try {
-            val urlString = config.dobbyBackendUrl + DiscordStrings.HttpEndPoints.PostGetDeleteFact.PATH
-            val response: HttpResponse = client.delete(urlString) {
-                contentType(ContentType.Application.Json)
+    suspend fun deleteFactsForUser(discordUserId: String, guildId: String): Boolean =
+        safeRequest("Error deleting facts for user $discordUserId from Dobby Core Backend", false) {
+            delete(DiscordStrings.HttpEndPoints.PostGetDeleteFact.PATH) {
                 parameter("discord_user_id", discordUserId)
                 parameter("guild_id", guildId)
-            }
-            response.status.isSuccess()
-        } catch (e: Exception) {
-            Logging.logError("Error deleting facts for user $discordUserId from Dobby Core Backend: ${e.message}")
-            false
+            }.status.isSuccess()
         }
-    }
 }

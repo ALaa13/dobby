@@ -2,6 +2,7 @@ package org.example.command
 
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
 import dev.kord.rest.builder.interaction.*
+import dev.kord.rest.builder.message.modify.InteractionResponseModifyBuilder
 import org.example.dto.ChatMessage
 import org.example.dto.RoastDeliveryRequest
 import org.example.service.DobbyCoreBackend
@@ -65,12 +66,12 @@ class RoastCommand(
 
             val messages = fetchMessages(channel, interactionId = interaction.id, config = config)
             val formattedMessages = formatMessagesForAI(messages)
-
             deliverRoast(
                 channelId = channel.id.toString(),
                 guildId = interaction.guildId.toString(),
                 messages = formattedMessages,
-                persona = persona
+                persona = persona,
+                builder = this
             )
         }
     }
@@ -79,19 +80,18 @@ class RoastCommand(
         channelId: String,
         guildId: String,
         messages: List<ChatMessage>,
-        persona: String?
-    ): String {
+        persona: String?,
+        builder: InteractionResponseModifyBuilder
+    ) {
         val requestBody = RoastDeliveryRequest(
             channelId = channelId,
             guildId = guildId,
             messages = messages,
             persona = persona
         )
-
-        return if (dobbyCoreBackend.sendDiscordMessages(requestBody = requestBody)) {
-            DiscordStrings.Commands.Roast.DEFERRED_MESSAGE
-        } else {
-            DiscordStrings.HttpEndPoints.FAILED_MESSAGE
+        builder.content = when {
+            dobbyCoreBackend.sendDiscordMessages(requestBody = requestBody) -> DiscordStrings.Commands.Roast.DEFERRED_MESSAGE
+            else -> DiscordStrings.HttpEndPoints.FAILED_MESSAGE
         }
     }
 }

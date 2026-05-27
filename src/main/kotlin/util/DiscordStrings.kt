@@ -63,7 +63,6 @@ object DiscordStrings {
             const val NAME = "display-facts"
             const val DESCRIPTION = "Get a list of all facts stored about your homies"
             const val NO_FACTS_FOUND = "No facts found for this homie"
-            const val SUCCESS_REPLY = "Here are the facts I found for this homie"
             const val SUCCESS_EMBED_TITLE = "🧠 Dobby's Blackmail Folder"
 
 
