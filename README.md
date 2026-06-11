@@ -2,11 +2,11 @@
 
 Dobby is a Kotlin Discord bot service. It registers Discord application commands, forwards roast and fact requests to a
 separate Dobby Core Backend, and exposes an internal HTTP endpoint so the backend can deliver processed roast results
-back into Discord.
+back into Discord. Redis is used for caching and state management.
 
 ## What the Service Does
 
-The service has two runtime parts:
+The service has three runtime parts:
 
 1. Discord bot client
     - Logs in to Discord with `DISCORD_TOKEN`.
@@ -18,6 +18,10 @@ The service has two runtime parts:
     - Listens on `EMBEDDED_SERVER_HOST:EMBEDDED_SERVER_PORT`.
     - Exposes `POST /api/internal/deliver` for internal backend callbacks.
     - Requires the `X-Internal-Token` header to match `INTERNAL_SECURITY_TOKEN`.
+
+3. Redis client
+    - Connects to Redis for caching and state management.
+    - Configured via `REDIS_HOST` and `REDIS_PORT` environment variables.
 
 ## Commands
 
@@ -55,11 +59,11 @@ The bot rejects bot users for both `/roast target` and `/fact target`.
 Main flow:
 
 1. `Main.kt` loads configuration from `.env`.
-2. `Main.kt` creates the Discord `Kord` client and shared Ktor HTTP client.
+2. `Main.kt` creates the Discord `Kord` client, shared Ktor HTTP client, and Redis connection.
 3. Koin wires dependencies from `di/AppModule.kt`.
 4. `EmbeddedServerManager` starts the internal Ktor server.
 5. `DiscordBot` registers application commands and logs in to Discord.
-6. Command handlers call `DobbyCoreBackend`.
+6. Command handlers call `DobbyCoreBackend` and use Redis for caching.
 7. Dobby Core Backend calls back to `POST /api/internal/deliver`.
 8. `RoastDeliveryService` posts the result to the Discord channel.
 
@@ -80,6 +84,7 @@ Important source files:
 - Discord bot token.
 - A Discord application with the bot installed in the server where you want to use it.
 - Dobby Core Backend running and reachable from this bot service.
+- Redis instance running and reachable from this bot service.
 - Gradle wrapper from this repository.
 
 The Gradle build uses:
@@ -91,6 +96,7 @@ The Gradle build uses:
 - Koin
 - kotlinx serialization
 - dotenv-kotlin
+- Redis client
 
 ## Environment Variables
 
@@ -103,18 +109,22 @@ INTERNAL_SECURITY_TOKEN=shared-secret-used-by-core-backend
 DOBBY_BACKEND_URL=http://localhost:8000
 EMBEDDED_SERVER_PORT=8080
 EMBEDDED_SERVER_HOST=0.0.0.0
+REDIS_HOST=localhost
+REDIS_PORT=6379
 ```
 
 Variables:
 
-| Name                      | Required | Default   | Description                                                                                                                                                            |
-|---------------------------|----------|-----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `DISCORD_TOKEN`           | Yes      | None      | Discord bot token used by Kord to log in.                                                                                                                              |
-| `DEV_GUILD_ID`            | No       | None      | Discord guild/server ID for instant command registration during development. If omitted, commands are registered globally and can take up to about one hour to appear. |
-| `INTERNAL_SECURITY_TOKEN` | Yes      | None      | Shared secret required on internal callback requests. The backend must send it as `X-Internal-Token`.                                                                  |
-| `DOBBY_BACKEND_URL`       | Yes      | None      | Base URL of Dobby Core Backend. This service calls `POST {DOBBY_BACKEND_URL}/roast` and `POST {DOBBY_BACKEND_URL}/fact`.                                               |
-| `EMBEDDED_SERVER_PORT`    | No       | `8080`    | Port for this service's embedded Ktor server.                                                                                                                          |
-| `EMBEDDED_SERVER_HOST`    | No       | `0.0.0.0` | Host/interface for the embedded Ktor server.                                                                                                                           |
+| Name                      | Required | Default       | Description                                                                                                                                   |
+|---------------------------|----------|---------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| `DISCORD_TOKEN`           | Yes      | None          | Discord bot token used by Kord to log in.                                                                                                     |
+| `DEV_GUILD_ID`            | No       | None          | Discord guild/server ID for instant command registration during development. If omitted, commands are registered globally and can take up to about one hour to propagate. |
+| `INTERNAL_SECURITY_TOKEN` | Yes      | None          | Shared secret required on internal callback requests. The backend must send it as `X-Internal-Token`.                                         |
+| `DOBBY_BACKEND_URL`       | Yes      | None          | Base URL of Dobby Core Backend. This service calls `POST {DOBBY_BACKEND_URL}/roast` and `POST {DOBBY_BACKEND_URL}/fact`.                      |
+| `EMBEDDED_SERVER_PORT`    | No       | `8080`        | Port for this service's embedded Ktor server.                                                                                                 |
+| `EMBEDDED_SERVER_HOST`    | No       | `0.0.0.0`     | Host/interface for the embedded Ktor server.                                                                                                  |
+| `REDIS_HOST`              | No       | `localhost`   | Hostname or IP address of the Redis server.                                                                                                   |
+| `REDIS_PORT`              | No       | `6379`        | Port number of the Redis server.                                                                                                             |
 
 Do not commit `.env`; it is already ignored by `.gitignore`.
 
@@ -128,17 +138,19 @@ Do not commit `.env`; it is already ignored by `.gitignore`.
 
    If Java is not found, set `JAVA_HOME` to your JDK 24 installation and ensure `$JAVA_HOME/bin` is on `PATH`.
 
-2. Create `.env` in the project root using the variables above.
+2. Start Redis and ensure it is running on the configured `REDIS_HOST:REDIS_PORT`.
 
-3. Start Dobby Core Backend and make sure `DOBBY_BACKEND_URL` points to it.
+3. Create `.env` in the project root using the variables above.
 
-4. Run the bot service:
+4. Start Dobby Core Backend and make sure `DOBBY_BACKEND_URL` points to it.
+
+5. Run the bot service:
 
    ```bash
    ./gradlew run
    ```
 
-5. Watch the logs for command registration and bot startup messages.
+6. Watch the logs for command registration, Redis connection, and bot startup messages.
 
 For development, set `DEV_GUILD_ID` so command changes appear immediately in one Discord server. Without it, the bot
 registers global commands, which can take time to propagate.
@@ -267,3 +279,7 @@ Check that Dobby Core Backend is running, `DOBBY_BACKEND_URL` is correct, and th
 ### Backend callback returns `401 Unauthorized`
 
 The `X-Internal-Token` request header does not match `INTERNAL_SECURITY_TOKEN`.
+
+### Redis connection fails
+
+Check that Redis is running on `REDIS_HOST:REDIS_PORT` and that both variables are correctly set in your `.env` file.
