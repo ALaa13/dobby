@@ -90,10 +90,9 @@ object DiscordStrings {
         object PostGetDeleteFact {
             const val PATH = "/fact"
         }
+    }
 
-        object InternalBotDelivery {
-            const val PATH = "/api/internal/deliver"
-            const val HEADERS = "X-Internal-Token"
-        }
+    object RedisChannels {
+        const val ROAST_DELIVERY = "roast-delivery"
     }
 }

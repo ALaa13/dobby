@@ -3,30 +3,21 @@ package org.example.command
 import dev.kord.core.behavior.interaction.response.respond
 import dev.kord.core.entity.User
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
-import dev.kord.core.event.interaction.GuildMessageCommandInteractionCreateEvent
-import dev.kord.core.event.interaction.GuildUserCommandInteractionCreateEvent
 import dev.kord.core.event.interaction.InteractionCreateEvent
 import dev.kord.rest.builder.interaction.MultiApplicationCommandBuilder
 import dev.kord.rest.builder.interaction.input
-import dev.kord.rest.builder.interaction.message
-import dev.kord.rest.builder.interaction.user
 import dev.kord.rest.builder.message.modify.InteractionResponseModifyBuilder
 import org.example.util.DiscordStrings
 import org.example.util.Logging
 
-// Base interface for all command types
 abstract class ApplicationCommand<T : InteractionCreateEvent> {
     abstract val name: String
     abstract suspend fun register(builder: MultiApplicationCommandBuilder)
     abstract suspend fun run(event: T)
     suspend fun execute(event: T) {
         try {
+            Logging.logCommand(event, name)
             run(event)
-            Logging.logCommand(
-                userId = event.interaction.user.id.toString(),
-                command = name,
-                guildId = event.interaction.data.guildId.value?.toString()
-            )
         } catch (e: Exception) {
             Logging.logError("Error executing $name", e)
             throw e
@@ -34,15 +25,12 @@ abstract class ApplicationCommand<T : InteractionCreateEvent> {
     }
 }
 
-// Chat Input Commands (Slash commands like /ping)
 abstract class ChatInputCommand() :
     ApplicationCommand<GuildChatInputCommandInteractionCreateEvent>() {
     abstract val description: String
 
     override suspend fun register(builder: MultiApplicationCommandBuilder) {
-        builder.input(name, description) {
-            // Subclasses can override to add options
-        }
+        builder.input(name, description) {}
     }
 
     abstract override suspend fun run(event: GuildChatInputCommandInteractionCreateEvent)
@@ -74,28 +62,4 @@ abstract class ChatInputCommand() :
             deferredMessage.respond { content = DiscordStrings.Commands.DISCORD_INTERACTION_FAILED }
         }
     }
-}
-
-// User Commands (Right-click on user)
-abstract class UserCommand :
-    ApplicationCommand<GuildUserCommandInteractionCreateEvent>(
-
-    ) {
-    override suspend fun register(builder: MultiApplicationCommandBuilder) {
-        builder.user(name)
-    }
-
-    abstract override suspend fun run(event: GuildUserCommandInteractionCreateEvent)
-}
-
-// Message Commands (Right-click on a message)
-abstract class MessageCommand :
-    ApplicationCommand<GuildMessageCommandInteractionCreateEvent>(
-
-    ) {
-    override suspend fun register(builder: MultiApplicationCommandBuilder) {
-        builder.message(name)
-    }
-
-    abstract override suspend fun run(event: GuildMessageCommandInteractionCreateEvent)
 }

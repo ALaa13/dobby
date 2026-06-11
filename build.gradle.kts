@@ -15,7 +15,7 @@ dependencies {
     testImplementation(kotlin("test"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("dev.kord:kord-core:0.17.0")
-    implementation("org.slf4j:slf4j-simple:2.0.16")
+    implementation("ch.qos.logback:logback-classic:1.5.34")
     implementation("io.insert-koin:koin-core:3.5.0")
     implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
@@ -23,6 +23,7 @@ dependencies {
     implementation("io.ktor:ktor-server-core:3.5.0")
     implementation("io.ktor:ktor-server-netty:3.5.0")
     implementation("io.ktor:ktor-server-content-negotiation:3.1.3")
+    implementation("redis.clients:jedis:5.1.2")
 }
 
 kotlin {

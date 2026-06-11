@@ -31,13 +31,13 @@ class DisplayFactsCommand(
         val target = interaction.command.users[DiscordStrings.Commands.GetFacts.Target.NAME]!!
 
         respondEphemeral(
-            event = event,
-            botGuardTarget = target,
-            errorLogMessage = "Catastrophic failure during fact lookup"
+            event,
+            target,
+            "Catastrophic failure during fact lookup"
         ) {
             val facts = getFacts(
-                discordUserId = target.id.toString(),
-                guildId = interaction.guildId.toString()
+                target.id.toString(),
+                interaction.guildId.toString()
             )
             if (facts.isEmpty()) {
                 content = DiscordStrings.Commands.GetFacts.NO_FACTS_FOUND

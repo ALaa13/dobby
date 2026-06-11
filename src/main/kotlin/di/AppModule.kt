@@ -5,7 +5,7 @@ import io.ktor.client.*
 import org.example.DiscordBot
 import org.example.command.*
 import org.example.config.BotConfig
-import org.example.config.EmbeddedServerManager
+import org.example.queue.RedisSubscriberManager
 import org.example.service.DobbyCoreBackend
 import org.example.service.RoastDeliveryService
 import org.koin.dsl.module
@@ -15,14 +15,9 @@ fun appModule(config: BotConfig, kord: Kord, httpClient: HttpClient) = module {
     single { kord }
     single { DiscordBot(get(), get(), get()) }
     single { httpClient }
-    single {
-        EmbeddedServerManager(
-            get(),
-            get(),
-        )
-    }
     single { RoastDeliveryService(get()) }
     single { DobbyCoreBackend(get(), get()) }
+    single { RedisSubscriberManager(get(), get()) }
     single<List<ApplicationCommand<*>>> {
         listOf(
             PingCommand(),

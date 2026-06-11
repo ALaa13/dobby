@@ -6,10 +6,11 @@ import io.github.cdimascio.dotenv.dotenv
 data class BotConfig(
     val token: String,
     val devGuildId: Snowflake? = null,
-    val securityToken: String,
-    val dobbyBackendUrl: String,
-    val embeddedServerPort: Int,
-    val embeddedServerHost: String,
+    val redisHost: String,
+    val redisPort: Int,
+    val backendUrl: String,
+    val backendApiHeader: String,
+    val backendApiKey: String,
 ) {
     companion object {
         fun load(): BotConfig {
@@ -18,11 +19,11 @@ data class BotConfig(
                 token = env["DISCORD_TOKEN"]
                     ?: error("DISCORD_TOKEN not set"),
                 devGuildId = env["DEV_GUILD_ID"]?.let { Snowflake(it) },
-                securityToken = env["INTERNAL_SECURITY_TOKEN"]
-                    ?: error("INTERNAL_SECURITY_TOKEN not set"),
-                dobbyBackendUrl = env["DOBBY_BACKEND_URL"] ?: error("DOBBY_BACKEND_URL not set"),
-                embeddedServerPort = env["EMBEDDED_SERVER_PORT"]?.toIntOrNull() ?: 8080,
-                embeddedServerHost = env["EMBEDDED_SERVER_HOST"] ?: "0.0.0.0"
+                redisHost = env["REDIS_HOST"] ?: error("REDIS_HOST not set"),
+                redisPort = env["REDIS_PORT"]?.toIntOrNull() ?: error("REDIS_PORT not set or not an integer"),
+                backendUrl = env["BACKEND_URL"] ?: error("BACKEND_URL not set"),
+                backendApiHeader = env["BACKEND_API_HEADER"] ?: "",
+                backendApiKey = env["BACKEND_API_KEY"] ?: ""
             )
         }
     }

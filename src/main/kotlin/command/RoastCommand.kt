@@ -4,7 +4,7 @@ import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEve
 import dev.kord.rest.builder.interaction.*
 import dev.kord.rest.builder.message.modify.InteractionResponseModifyBuilder
 import org.example.dto.ChatMessage
-import org.example.dto.RoastDeliveryRequest
+import org.example.dto.RoastRequest
 import org.example.service.DobbyCoreBackend
 import org.example.util.DiscordStrings
 import org.example.util.FetchMessagesConfig
@@ -55,23 +55,23 @@ class RoastCommand(
         val persona = interaction.command.strings[DiscordStrings.Commands.Roast.Persona.NAME]
 
         respondEphemeral(
-            event = event,
-            botGuardTarget = target,
-            errorLogMessage = "Catastrophic failure during roast generation"
+            event,
+            target,
+            "Catastrophic failure during roast generation"
         ) {
             val config = FetchMessagesConfig(
-                messagesToFetch = messagesCount ?: 50,
-                authorId = target?.id
+                messagesCount ?: 50,
+                target?.id
             )
 
-            val messages = fetchMessages(channel, interactionId = interaction.id, config = config)
+            val messages = fetchMessages(channel, interaction.id, config)
             val formattedMessages = formatMessagesForAI(messages)
             deliverRoast(
-                channelId = channel.id.toString(),
-                guildId = interaction.guildId.toString(),
-                messages = formattedMessages,
-                persona = persona,
-                builder = this
+                channel.id.toString(),
+                interaction.guildId.toString(),
+                formattedMessages,
+                persona,
+                this
             )
         }
     }
@@ -83,15 +83,18 @@ class RoastCommand(
         persona: String?,
         builder: InteractionResponseModifyBuilder
     ) {
-        val requestBody = RoastDeliveryRequest(
-            channelId = channelId,
-            guildId = guildId,
-            messages = messages,
-            persona = persona
+        val requestBody = RoastRequest(
+            channelId,
+            guildId,
+            messages,
+            persona
         )
         builder.content = when {
-            dobbyCoreBackend.sendDiscordMessages(requestBody = requestBody) -> DiscordStrings.Commands.Roast.DEFERRED_MESSAGE
-            else -> DiscordStrings.HttpEndPoints.FAILED_MESSAGE
+            dobbyCoreBackend.sendDiscordMessages(requestBody)
+                -> DiscordStrings.Commands.Roast.DEFERRED_MESSAGE
+
+            else
+                -> DiscordStrings.HttpEndPoints.FAILED_MESSAGE
         }
     }
 }

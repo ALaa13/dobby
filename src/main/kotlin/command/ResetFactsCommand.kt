@@ -14,9 +14,9 @@ class ResetFactsCommand(
         val interaction = event.interaction
         val target = interaction.user
         respondEphemeral(
-            event = event,
-            botGuardTarget = target,
-            errorLogMessage = "Catastrophic failure during facts reset"
+            event,
+            target,
+            "Catastrophic failure during facts reset"
         ) {
             content = when (dobbyCoreBackend.deleteFactsForUser(
                 target.id.toString(),

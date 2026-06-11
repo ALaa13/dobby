@@ -8,7 +8,7 @@ import io.ktor.http.*
 import org.example.config.BotConfig
 import org.example.dto.Fact
 import org.example.dto.FactRequest
-import org.example.dto.RoastDeliveryRequest
+import org.example.dto.RoastRequest
 import org.example.util.DiscordStrings
 import org.example.util.Logging
 
@@ -28,37 +28,50 @@ class DobbyCoreBackend(
     }
 
     private suspend fun get(path: String, block: HttpRequestBuilder.() -> Unit): HttpResponse =
-        client.get(config.dobbyBackendUrl + path) {
+        client.get(config.backendUrl + path) {
             contentType(ContentType.Application.Json)
             block()
         }
 
     private suspend fun post(path: String, block: HttpRequestBuilder.() -> Unit): HttpResponse =
-        client.post(config.dobbyBackendUrl + path) {
+        client.post(config.backendUrl + path) {
             contentType(ContentType.Application.Json)
             block()
         }
 
     private suspend fun delete(path: String, block: HttpRequestBuilder.() -> Unit): HttpResponse =
-        client.delete(config.dobbyBackendUrl + path) {
+        client.delete(config.backendUrl + path) {
             contentType(ContentType.Application.Json)
             block()
         }
 
     private suspend inline fun <reified T> HttpResponse.bodyOrFallback(fallback: T, errorMessage: String): T =
         if (status.isSuccess()) body() else {
-            Logging.logError(errorMessage)
+            Logging.logError("$errorMessage: ${status.value} ${status.description}")
             fallback
         }
 
-    suspend fun sendDiscordMessages(requestBody: RoastDeliveryRequest): Boolean =
+    private suspend fun HttpResponse.isSuccessOrLog(errorMessage: String): Boolean {
+        return if (status.isSuccess()) {
+            true
+        } else {
+            val errorBody = runCatching { bodyAsText() }.getOrElse { "Could not read response body" }
+
+            Logging.logError("$errorMessage: ${status.value} ${status.description} | Details: $errorBody")
+            false
+        }
+    }
+
+    suspend fun sendDiscordMessages(requestBody: RoastRequest): Boolean =
         safeRequest("Error sending roast delivery request to Dobby Core Backend", false) {
-            post(DiscordStrings.HttpEndPoints.PostRoast.PATH) { setBody(requestBody) }.status.isSuccess()
+            post(DiscordStrings.HttpEndPoints.PostRoast.PATH) { setBody(requestBody) }
+                .isSuccessOrLog("Error sending roast delivery request to Dobby Core Backend")
         }
 
     suspend fun sendFactRequest(factRequest: FactRequest): Boolean =
         safeRequest("Error sending remember request to Dobby Core Backend", false) {
-            post(DiscordStrings.HttpEndPoints.PostGetDeleteFact.PATH) { setBody(factRequest) }.status.isSuccess()
+            post(DiscordStrings.HttpEndPoints.PostGetDeleteFact.PATH) { setBody(factRequest) }
+                .isSuccessOrLog("Error sending remember request to Dobby Core Backend")
         }
 
     suspend fun getFactsForUser(discordUserId: String, guildId: String): List<Fact> =
@@ -74,6 +87,6 @@ class DobbyCoreBackend(
             delete(DiscordStrings.HttpEndPoints.PostGetDeleteFact.PATH) {
                 parameter("discord_user_id", discordUserId)
                 parameter("guild_id", guildId)
-            }.status.isSuccess()
+            }.isSuccessOrLog("Error deleting facts for user $discordUserId from Dobby Core Backend")
         }
 }
