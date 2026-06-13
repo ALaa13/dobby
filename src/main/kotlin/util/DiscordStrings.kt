@@ -33,7 +33,7 @@ object DiscordStrings {
             object Persona {
                 const val NAME = "persona"
                 const val DESCRIPTION =
-                    "Type a persona for the roast e.g. league of legends (Default: No persona, just a straight up roast)"
+                    "Type a persona for the roast e.g. Discord mod (Default: No persona, just a straight up roast)"
             }
 
             object Target {
@@ -44,7 +44,7 @@ object DiscordStrings {
 
         object Fact {
             const val NAME = "fact"
-            const val DESCRIPTION = "Snitch a fact about your homie to be remembered and used against them"
+            const val DESCRIPTION = "Snitch a fact about a homie to be remembered and used against them"
             const val SUCCESS_REPLY = "Fact stored successfully fam! 🔐"
 
 
@@ -62,7 +62,7 @@ object DiscordStrings {
         object GetFacts {
             const val NAME = "display-facts"
             const val DESCRIPTION = "Get a list of all facts stored about your homies"
-            const val NO_FACTS_FOUND = "No facts found for this homie"
+            const val NO_FACTS_FOUND = "No facts found for this homie, Use the /fact command to snitch some!"
             const val SUCCESS_EMBED_TITLE = "🧠 Dobby's Blackmail Folder"
 
 

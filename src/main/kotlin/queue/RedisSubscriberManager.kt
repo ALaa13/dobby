@@ -20,7 +20,6 @@ class RedisSubscriberManager(
     private var jedis: Jedis? = null
     private var pubSub: JedisPubSub? = null
     private val json = Json { ignoreUnknownKeys = true }
-
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     fun start() {
@@ -38,7 +37,7 @@ class RedisSubscriberManager(
 
         scope.launch(Dispatchers.IO) {
             val shouldReconnect = true
-            val delayDuration = 5000L // 5 seconds recovery buffer
+            val delayDuration = 5000L // 5-second recovery buffer
 
             while (shouldReconnect && isActive) { // isActive ensures it stops if the scope is canceled
                 try {
