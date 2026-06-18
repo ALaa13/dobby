@@ -24,25 +24,34 @@ class RedisSubscriberManager(
 
     fun start() {
         try {
+            // Add authentication to the initial health check client
             Jedis(config.redisHost, config.redisPort).use { healthCheckClient ->
+                if (!config.redisPassword.isNullOrBlank()) {
+                    healthCheckClient.auth(config.redisPassword)
+                }
                 if (healthCheckClient.ping() != "PONG") {
                     throw IllegalStateException("Redis responded, but ping failed!")
                 }
             }
-            Logging.logInfo("Redis Subscriber health check passed: Connected successfully.")
+            Logging.logInfo("Redis Subscriber health check passed: Connected and authenticated successfully.")
         } catch (e: Exception) {
-            Logging.logError("CRITICAL: Redis container is offline! Subscriber cannot start: ${e.message}")
+            Logging.logError("CRITICAL: Redis container is offline or auth failed! Subscriber cannot start: ${e.message}")
             exitProcess(1)
         }
 
         scope.launch(Dispatchers.IO) {
             val shouldReconnect = true
-            val delayDuration = 5000L // 5-second recovery buffer
+            val delayDuration = 5000L
 
-            while (shouldReconnect && isActive) { // isActive ensures it stops if the scope is canceled
+            while (shouldReconnect && isActive) {
                 try {
+                    // Initialize and authenticate the main subscription worker
                     jedis = Jedis(config.redisHost, config.redisPort)
-                    Logging.logInfo("Connected to Redis! Subscribing to channel...")
+                    if (!config.redisPassword.isNullOrBlank()) {
+                        jedis?.auth(config.redisPassword)
+                    }
+
+                    Logging.logInfo("Connected and authenticated to Redis! Subscribing to channel...")
 
                     pubSub = object : JedisPubSub() {
                         override fun onMessage(channel: String, message: String) {
@@ -61,13 +70,12 @@ class RedisSubscriberManager(
                         }
                     }
 
-                    // ⚠️ This blocks the while-loop here as long as the connection stays alive
+                    // This blocks the loop while connected
                     jedis?.subscribe(pubSub, DiscordStrings.RedisChannels.ROAST_DELIVERY)
 
                 } catch (e: Exception) {
                     Logging.logError("Redis connection lost or failed to subscribe: ${e.message}. Retrying in ${delayDuration / 1000}s...")
                     runCatching { jedis?.close() }
-                    // Non-blocking coroutine delay before attempting a clean reconnect
                     delay(delayDuration.milliseconds)
                 }
             }
