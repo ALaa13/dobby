@@ -39,36 +39,32 @@ class FactCommand(
         val target = interaction.command.users[DiscordStrings.Commands.Fact.Target.NAME]!!
         val fact = interaction.command.strings[DiscordStrings.Commands.Fact.Fact.NAME]!!
 
+        val factBody = FactRequest(
+            fact,
+            target.id.toString(),
+            interaction.guildId.toString(),
+            target.username,
+            target.data.avatar
+        )
+
         respondEphemeral(
             event,
             target,
             "Catastrophic failure during fact delivery"
         ) {
             sendFact(
-                fact,
-                target.id.toString(),
-                target.username,
-                interaction.guildId.toString(),
+                factBody,
                 this
             )
         }
     }
 
     private suspend fun sendFact(
-        fact: String,
-        discordUserid: String,
-        displayName: String,
-        guildId: String,
+        fact: FactRequest,
         builder: InteractionResponseModifyBuilder
     ) {
-        val requestBody = FactRequest(
-            fact,
-            discordUserid,
-            guildId,
-            displayName
-        )
         builder.content = when {
-            dobbyCoreBackend.sendFactRequest(requestBody) -> DiscordStrings.Commands.Fact.SUCCESS_REPLY
+            dobbyCoreBackend.sendFactRequest(fact) -> DiscordStrings.Commands.Fact.SUCCESS_REPLY
             else -> DiscordStrings.HttpEndPoints.FAILED_MESSAGE
         }
     }
