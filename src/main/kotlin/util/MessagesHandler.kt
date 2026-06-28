@@ -36,8 +36,10 @@ suspend fun fetchMessages(
 fun formatMessagesForAI(messages: List<Message>): List<ChatMessage> {
     return messages.map { message ->
         ChatMessage(
-            author = message.author?.id.toString(),
+            discordUserId = message.author?.id.toString(),
+            displayName = message.author?.username ?: "Unknown",
             content = message.content,
+            avatarHash = message.author?.data?.avatar,
             timestamp = message.timestamp.toString()
         )
     }
