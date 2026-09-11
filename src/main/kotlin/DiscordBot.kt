@@ -3,8 +3,8 @@ package org.example
 import dev.kord.core.Kord
 import dev.kord.core.event.interaction.GuildChatInputCommandInteractionCreateEvent
 import dev.kord.core.on
-import dev.kord.gateway.Intent
-import dev.kord.gateway.PrivilegedIntent
+import dev.kord.gateway.Intents
+import dev.kord.gateway.NONE
 import org.example.command.ApplicationCommand
 import org.example.command.ChatInputCommand
 import org.example.config.BotConfig
@@ -20,8 +20,7 @@ class DiscordBot(
         registerCommandHandlers()
         Logging.logInfo("Bot is starting...")
         kord.login {
-            @OptIn(PrivilegedIntent::class)
-            intents += Intent.Guilds
+            intents = Intents.NONE
         }
     }
 

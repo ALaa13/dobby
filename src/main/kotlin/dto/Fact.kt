@@ -16,5 +16,5 @@ data class Fact(
     @SerialName("created_at")
     val createdAt: String,
     @SerialName("updated_at")
-    val updatedAt: String?,
+    val updatedAt: String? = null,
 )

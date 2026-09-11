@@ -14,7 +14,7 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-    implementation("dev.kord:kord-core:0.17.0")
+    implementation("dev.kord:kord-core:0.18.1")
     implementation("ch.qos.logback:logback-classic:1.5.34")
     implementation("io.insert-koin:koin-core:3.5.0")
     implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
