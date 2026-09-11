@@ -3,7 +3,6 @@ package org.example.dto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-
 @Serializable
 data class Fact(
     @SerialName("id")
@@ -14,10 +13,8 @@ data class Fact(
     val factText: String,
     @SerialName("source")
     val source: String?,
-    @SerialName("confidence_score")
-    val confidenceScore: Short?,
-    @SerialName("roastability_score")
-    val roastabilityScore: Short?,
     @SerialName("created_at")
-    val createdAt: String
+    val createdAt: String,
+    @SerialName("updated_at")
+    val updatedAt: String? = null,
 )
