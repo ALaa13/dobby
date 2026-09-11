@@ -48,3 +48,5 @@ bin/
 
 .env
 git-cleanup
+.codex
+.agents
